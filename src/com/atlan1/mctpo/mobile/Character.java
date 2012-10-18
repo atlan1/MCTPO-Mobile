@@ -327,7 +327,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 	}
 	
 	public Block getBlockIncluding(double x, double y) {
-		return World.blocks[(int) ((x - (x % MCTPO.tileSize) + MCTPO.sX) / MCTPO.tileSize)][(int) ((y - (y % MCTPO.tileSize) + MCTPO.sY) / MCTPO.tileSize)];
+		return World.blocks[(int) ((x + MCTPO.sX) / MCTPO.tileSize)][(int) ((y + MCTPO.sY) / MCTPO.tileSize)];
 	}
 	
 	public boolean isBlockInBuildRange(Block block) {
