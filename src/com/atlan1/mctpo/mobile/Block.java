@@ -78,7 +78,6 @@ public class Block extends Rectangle implements Thing{
 	}
 	
 	public void update(int index) {
-		Log.d("update", "update");
 		framesSinceUpdate.set(index, 0);
 	}
 

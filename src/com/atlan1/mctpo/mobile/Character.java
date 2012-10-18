@@ -11,7 +11,6 @@ import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.util.Log;
 
 import com.atlan1.mctpo.mobile.MCTPO;
 import com.atlan1.mctpo.mobile.Inventory.Inventory;
@@ -46,6 +45,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 	public boolean isMoving = false;
 	public boolean wouldJump = false;
 	public boolean isJumping = false;
+	public boolean setBlockBelow = false;
 	public boolean isSprinting = false;
 	public int jumpHeight = 12, jumpCount = 0; 
 	public double dir = 1;
@@ -159,6 +159,16 @@ public class Character extends DoubleRectangle implements LivingThing{
 				if(jumpHeight<=jumpCount){
 					isJumping = false;
 					jumpCount = 0;
+					if (setBlockBelow && !inventory.slots[inventory.selected].material.nonSolid) {
+						if(inventory.slots[inventory.selected].stackSize>0)
+							inventory.slots[inventory.selected].stackSize--;
+						else{
+							inventory.slots[inventory.selected].stackSize = 0;
+							inventory.slots[inventory.selected].material = Material.AIR;
+						}
+						World.blocks[(int) Math.round(x / MCTPO.tileSize)][(int) Math.round(y / 20 + 2)].material = inventory.slots[inventory.selected].material;
+						setBlockBelow = false;
+					}
 				}else{
 					y-=jumpingSpeed;
 					MCTPO.sY-=jumpingSpeed;
@@ -227,12 +237,6 @@ public class Character extends DoubleRectangle implements LivingThing{
 		}
 		lastBlock = currentBlock;
 		currentBlock = getCurrentBlock();
-		try {
-			Log.d("currentBlockX", String.valueOf(currentBlock.x));
-			Log.d("currentBlockY", String.valueOf(currentBlock.y));
-		} catch (Exception e) {
-			
-		}
 		if(currentBlock!=null)
 			build();
 		if(health<=0){
@@ -247,12 +251,17 @@ public class Character extends DoubleRectangle implements LivingThing{
 	
 	private void calcMovement() {
 		if (MCTPO.fingerDown) {
-			if (MCTPO.fingerP.x <= ((int)x - (int) MCTPO.sX + (int)(x + width) - (int) MCTPO.sX) / 2) {
+			if (MCTPO.fingerP.x <= (MCTPO.size.width) / 2 - 30) {
 				isMoving = true;
 				dir = -movementSpeed;
-			} else {
+			} else if (MCTPO.fingerP.x >= (MCTPO.size.width) / 2 + 30) {
 				isMoving = true;
 				dir = movementSpeed;
+			} else if (!isJumping && (MCTPO.fingerP.y <= (MCTPO.size.height) / 2 - 50)) {
+				isJumping = true;
+			} else if (!isJumping && (MCTPO.fingerP.y >= (MCTPO.size.height) / 2 + 50) && isCollidingWithAnyBlock(bounds[bDOWN])) {
+				isJumping = true;
+				setBlockBelow = true;
 			}
 		} else if (this.isMoving) {
 			this.isMoving = false;

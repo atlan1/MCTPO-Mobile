@@ -23,6 +23,9 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 	int fps;
 	long countTime = System.nanoTime();
 	
+	int pointerBuildId = -1;
+	int pointerFingerId = -1;
+	
 	public MainGamePanel(Context context) {
 		super(context);
 		// adding the callback (this) to the surface holder to intercept events
@@ -102,59 +105,57 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 		}
 	}
 
-	@Override 
+	@Override
 	public boolean onTouchEvent(MotionEvent event) {
-		synchronized (this) {
-			switch(event.getAction()) {
-			case MotionEvent.ACTION_DOWN:
-				boolean handled = false;
-				float eventX = event.getX();
-				float eventY = event.getY();
-				Slot[] slots = MCTPO.mctpo.character.inventory.slots;
-				for (int i = 0; i < slots.length; i++) {
-					if (slots[i].contains(eventX, eventY)) {
-						MCTPO.mctpo.character.inventory.selected = i;
-						handled = true;
-						break;
+			synchronized (this) {
+				switch(event.getAction()) {
+				case MotionEvent.ACTION_DOWN:
+					boolean handled = false;
+					float eventX = event.getX();
+					float eventY = event.getY();
+					Slot[] slots = MCTPO.character.inventory.slots;
+					for (int i = 0; i < slots.length; i++) {
+						if (slots[i].contains(eventX, eventY)) {
+							MCTPO.character.inventory.selected = i;
+							handled = true;
+							break;
+						}
 					}
-				}
-				if (!handled) {	
-					if (Math.sqrt(Math.pow(this.getWidth() / 2 - eventX, 2) + Math.pow(this.getHeight() / 2 - eventY, 2)) > 60) {
-						MCTPO.fingerDownP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
-						MCTPO.fingerP = MCTPO.fingerDownP;
+					if (!handled) {	
+						if (Math.sqrt(Math.pow(this.getWidth() / 2 - eventX, 2) + Math.pow(this.getHeight() / 2 - eventY, 2)) > 60) {
+							MCTPO.fingerDownP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
+							MCTPO.fingerP = MCTPO.fingerDownP;
+							MCTPO.lastFingerP = MCTPO.fingerP;
+							MCTPO.fingerDown = true;
+						} else {
+							MCTPO.fingerBuildDownP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
+							MCTPO.fingerBuildP = MCTPO.fingerDownP;
+							MCTPO.fingerBuildDown = true;
+							MCTPO.fingerBuildMoved = false;
+						}
+					}
+					break;
+				case MotionEvent.ACTION_UP:
+					MCTPO.fingerDown = false;
+					MCTPO.fingerBuildDown = false;
+					break;
+				case MotionEvent.ACTION_MOVE:
+					if (MCTPO.fingerDown) {
 						MCTPO.lastFingerP = MCTPO.fingerP;
-						MCTPO.fingerDown = true;
-					} else {
-						MCTPO.fingerBuildDownP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
-						MCTPO.fingerBuildP = MCTPO.fingerDownP;
-						MCTPO.fingerBuildDown = true;
-						MCTPO.fingerBuildMoved = false;
+						MCTPO.fingerP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
+					} else if (MCTPO.fingerBuildDown) {
+						MCTPO.fingerBuildP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
+						MCTPO.fingerBuildMoved = true;
 					}
+
 				}
-				
-				break;
-			case MotionEvent.ACTION_UP:
-				MCTPO.fingerDown = false;
-				MCTPO.fingerBuildDown = false;
-				break;
-			case MotionEvent.ACTION_MOVE:
-				if (MCTPO.fingerDown) {
-					MCTPO.lastFingerP = MCTPO.fingerP;
-					MCTPO.fingerP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
-				} else if (MCTPO.fingerBuildDown) {
-					MCTPO.fingerBuildP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
-					MCTPO.fingerBuildMoved = true;
-				}
-				
+				/*try {
+					//this.wait(1000L);
+					Thread.sleep(15);
+				} catch (InterruptedException e) {
+				}*/
 			}
-			/*try {
-				//this.wait(1000L);
-				Thread.sleep(15);
-			} catch (InterruptedException e) {
-				
-			}*/
-		}
-		return true;
+			return true;
 	}
 
 	@Override 
