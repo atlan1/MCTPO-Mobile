@@ -1,6 +1,5 @@
 package com.atlan1.mctpo.mobile;
 
-import com.atlan1.mctpo.mobile.Inventory.Inventory;
 import com.atlan1.mctpo.mobile.Inventory.Slot;
 
 import android.content.Context; 
@@ -115,11 +114,15 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 					float eventX = event.getX();
 					float eventY = event.getY();
 					Slot[] slots = MCTPO.character.inventory.slots;
+					if ((eventX >= MCTPO.size.width - Character.modeButtonSize && eventX <= MCTPO.size.width && eventY >= 0 && eventY <= Character.modeButtonSize)) {
+						MCTPO.character.buildMode = MCTPO.character.buildMode.getNext();
+						return true;
+					}
 					for (int i = 0; i < slots.length; i++) {
 						if (slots[i].contains(eventX, eventY)) {
 							MCTPO.character.inventory.selected = i;
 							handled = true;
-							break;
+							return true;
 						}
 					}
 					if (!handled) {	
@@ -128,24 +131,29 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 							MCTPO.fingerP = MCTPO.fingerDownP;
 							MCTPO.lastFingerP = MCTPO.fingerP;
 							MCTPO.fingerDown = true;
+							return true;
 						} else {
 							MCTPO.fingerBuildDownP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
 							MCTPO.fingerBuildP = MCTPO.fingerDownP;
 							MCTPO.fingerBuildDown = true;
 							MCTPO.fingerBuildMoved = false;
+							return true;
 						}
 					}
-					break;
+					return true;
 				case MotionEvent.ACTION_UP:
 					MCTPO.fingerDown = false;
 					MCTPO.fingerBuildDown = false;
-					break;
+					return true;
 				case MotionEvent.ACTION_MOVE:
 					if (MCTPO.fingerDown) {
 						MCTPO.lastFingerP = MCTPO.fingerP;
-						MCTPO.fingerP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
+						MCTPO.fingerP.x = event.getX();
+						MCTPO.fingerP.y = event.getY();
+						return true;
 					} else if (MCTPO.fingerBuildDown) {
-						MCTPO.fingerBuildP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
+						MCTPO.fingerBuildP.x = event.getX();
+						MCTPO.fingerBuildP.y = event.getY();
 						MCTPO.fingerBuildMoved = true;
 					}
 

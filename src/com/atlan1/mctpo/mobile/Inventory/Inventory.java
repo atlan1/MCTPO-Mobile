@@ -29,6 +29,14 @@ public class Inventory {
 		}
 	}
 	
+	public Inventory(Inventory inventory) {
+		for(int i=0;i<slots.length;i++){
+			slots[i] = new Slot(this, new Rectangle((int) ((MCTPO.size.width/2) + (-((invLength * (slotSize + slotSpace))/2)+((i * (slotSize + slotSpace)))) * inventoryPixelSize) , (int) (MCTPO.size.height - (slotSize * inventoryPixelSize + borderSpace)), (int) (slotSize * inventoryPixelSize), (int) (slotSize * inventoryPixelSize)), inventory.slots[i].material);
+			slots[i].stackSize = inventory.slots[i].stackSize;
+		}
+		selected = inventory.selected;
+	}
+
 	public void render(Canvas c){
 		for(int i=0;i<slots.length;i++){
 			slots[i].render(c, i==selected);

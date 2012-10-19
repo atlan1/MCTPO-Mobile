@@ -22,6 +22,18 @@ import com.atlan1.mctpo.mobile.Graphics.Point;
 public class Character extends DoubleRectangle implements LivingThing{
 	private static Bitmap animationTexture;
 	private static Bitmap animationTextureFlipped;
+	static Bitmap buildOnlyButton;
+	static Bitmap destroyOnlyButton;
+	static Bitmap buildDestroyButton;
+	
+	public static int modeButtonSize = 50;
+	
+	public static enum BuildMode {
+		BUILD_DESTROY, BUILD_ONLY, DESTROY_ONLY;
+		public BuildMode getNext() {
+			return values()[(ordinal()+1) % values().length];
+		}
+	}
 
 	static public Paint redFilter;
 	
@@ -33,6 +45,11 @@ public class Character extends DoubleRectangle implements LivingThing{
 		redFilter = new Paint(Color.RED);
 		ColorFilter filter = new LightingColorFilter(Color.RED, 1);
 		redFilter.setColorFilter(filter);
+		
+
+		buildOnlyButton = TextureLoader.loadImage("images/buildonlybutton.png");
+		destroyOnlyButton = TextureLoader.loadImage("images/destroyonlybutton.png");
+		buildDestroyButton = TextureLoader.loadImage("images/builddestroybutton.png");
 	}
 	
 	private List<Thing> collisions = new ArrayList<Thing>();
@@ -62,6 +79,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 	public int destroyTime=0;
 	public boolean buildOn = true;
 	private boolean building = false;
+	public BuildMode buildMode = BuildMode.BUILD_DESTROY;
 	public Block currentBlock;
 	public Block lastBlock;
 	public final int bUP = 0, bDOWN = 1, bRIGHT = 2, bLEFT = 3;
@@ -363,7 +381,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 		if(isBlockInBuildRange(currentBlock) /*&& currentBlock != lastBlock*/){
 			//Log.d("build", "inRange");
 			Material m = currentBlock.material;
-			if(MCTPO.fingerBuildDown && m.nonSolid && buildOn/* && !this.asRectF().contains((float) MCTPO.fingerBuildP.x, (float) MCTPO.fingerBuildP.y)*/){
+			if(MCTPO.fingerBuildDown && m.nonSolid && buildOn && buildMode != BuildMode.DESTROY_ONLY/* && !this.asRectF().contains((float) MCTPO.fingerBuildP.x, (float) MCTPO.fingerBuildP.y)*/){
 				if (!building) {
 					building = true;
 				}
@@ -378,7 +396,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 					//buildOn = false;
 					return;
 				}
-			} else if(MCTPO.fingerBuildDown && !building){
+			} else if(MCTPO.fingerBuildDown && !building && buildMode != BuildMode.BUILD_ONLY){
 				if (buildOn) {
 					buildOn = false;
 				}

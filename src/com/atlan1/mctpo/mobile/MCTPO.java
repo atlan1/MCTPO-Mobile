@@ -3,9 +3,11 @@ package com.atlan1.mctpo.mobile;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.view.Display;
 import android.view.WindowManager;
 
+import com.atlan1.mctpo.mobile.Character.BuildMode;
 import com.atlan1.mctpo.mobile.Graphics.Dimension;
 import com.atlan1.mctpo.mobile.Graphics.Point;
 
@@ -121,9 +123,22 @@ public class MCTPO {
 		character.inventory.render(canvas);
 		character.healthBar.render(canvas);
 		
+		canvas.drawBitmap(character.buildMode == BuildMode.BUILD_DESTROY?Character.buildDestroyButton:character.buildMode == BuildMode.BUILD_ONLY?Character.buildOnlyButton:Character.destroyOnlyButton, null, new Rect(MCTPO.size.width - Character.modeButtonSize, 0, MCTPO.size.width, Character.modeButtonSize), null);
+		
 		/*if (MCTPO.fingerBuildDown) {
 			canvas.drawLine(MCTPO.size.width / 2, MCTPO.size.height / 2 - tileSize, (float) MCTPO.fingerBuildP.x, (float) MCTPO.fingerBuildP.y, blackLine);
 		}*/
+	}
+
+	public static void setPixelSize(float i) {
+		if (i != 0) {
+			pixelSize = i;
+			pixel.width = (int) (size.width / i);
+			pixel.height = (int) (size.height / i);
+			sX = character.x - pixel.width / 2 + character.width / 2;
+			sY = character.y - pixel.height / 2 + character.height;
+		}
+		
 	}
 
 	/*public static BufferedImage toBufferedImage(Image image) {
