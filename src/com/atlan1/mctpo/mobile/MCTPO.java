@@ -35,7 +35,7 @@ public class MCTPO {
 	
 	public static Point fingerDownP = new Point(-1, -1);
 	public static Point fingerP = new Point(-1, -1);
-	public static Point lastFingerP = new Point(-1, -1);
+	//public static Point lastFingerP = new Point(-1, -1);
 	public static boolean fingerDown = false;
 	public static Point fingerBuildDownP = new Point(-1, -1);
 	public static Point fingerBuildP = new Point(-1, -1);

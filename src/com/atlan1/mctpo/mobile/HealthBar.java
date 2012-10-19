@@ -29,15 +29,16 @@ public class HealthBar {
 	}
 	
 	public void render(Canvas canvas) {
-		int heartsLeft = c.health/(c.maxHealth/maxHearts);
-		int xH;
-		int yH;
-		for(int x=0;x<maxHearts;x++){
-			boolean black = heartsLeft-x<0;
-			xH = (int) ((MCTPO.size.width/2)-((((maxHearts * (heartSize + heartSpace))/2) - ((x * (heartSize + heartSpace)))) * Inventory.inventoryPixelSize));
-			yH = (int) (MCTPO.size.height - (c.inventory.slotSize + invBorder + heartSize) * Inventory.inventoryPixelSize - c.inventory.borderSpace);
-			canvas.drawBitmap(black?hblackIcon:hIcon, null, new Rect(xH, yH, (int) (xH + heartSize * Inventory.inventoryPixelSize), (int) (yH + heartSize * Inventory.inventoryPixelSize)), null);
+		if (MCTPO.character.inventory.inflated) {
+			int heartsLeft = c.health/(c.maxHealth/maxHearts);
+			int xH;
+			int yH;
+			for(int x=0;x<maxHearts;x++){
+				boolean black = heartsLeft-x<0;
+				xH = (int) ((MCTPO.size.width/2)-((((maxHearts * (heartSize + heartSpace))/2) - ((x * (heartSize + heartSpace)))) * Inventory.inventoryPixelSize));
+				yH = (int) (MCTPO.size.height - (c.inventory.slotSize + invBorder + heartSize) * Inventory.inventoryPixelSize - c.inventory.borderSpace);
+				canvas.drawBitmap(black?hblackIcon:hIcon, null, new Rect(xH, yH, (int) (xH + heartSize * Inventory.inventoryPixelSize), (int) (yH + heartSize * Inventory.inventoryPixelSize)), Inventory.transparentPaint);
+			}
 		}
-		
 	}
 }

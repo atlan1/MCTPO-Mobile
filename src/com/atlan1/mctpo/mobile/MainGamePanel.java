@@ -1,5 +1,6 @@
 package com.atlan1.mctpo.mobile;
 
+import com.atlan1.mctpo.mobile.Inventory.Inventory;
 import com.atlan1.mctpo.mobile.Inventory.Slot;
 
 import android.content.Context; 
@@ -110,7 +111,6 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 			synchronized (this) {
 				switch(event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
-					boolean handled = false;
 					float eventX = event.getX();
 					float eventY = event.getY();
 					Slot[] slots = MCTPO.character.inventory.slots;
@@ -118,36 +118,57 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 						MCTPO.character.buildMode = MCTPO.character.buildMode.getNext();
 						return true;
 					}
-					for (int i = 0; i < slots.length; i++) {
-						if (slots[i].contains(eventX, eventY)) {
-							MCTPO.character.inventory.selected = i;
-							handled = true;
-							return true;
+					
+					if (MCTPO.character.inventory.inflated) {
+						for (int i = 0; i < slots.length; i++) {
+							if (slots[i].contains(eventX, eventY)) {
+								MCTPO.character.inventory.selected = i;
+								return true;
+							}
 						}
 					}
-					if (!handled) {	
-						if (Math.sqrt(Math.pow((this.getWidth() / 2 - eventX) / MCTPO.pixelSize, 2) + Math.pow((this.getHeight() / 2 - eventY) / MCTPO.pixelSize, 2)) > 60) {
-							MCTPO.fingerDownP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
-							MCTPO.fingerP = MCTPO.fingerDownP;
-							MCTPO.lastFingerP = MCTPO.fingerP;
-							MCTPO.fingerDown = true;
-							return true;
-						} else {
-							MCTPO.fingerBuildDownP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
-							MCTPO.fingerBuildP = MCTPO.fingerDownP;
-							MCTPO.fingerBuildDown = true;
-							MCTPO.fingerBuildMoved = false;
-							return true;
-						}
+					
+					if (Inventory.inflateButtonRect.contains((int) eventX, (int) eventY)) {
+						MCTPO.character.inventory.inflated = !MCTPO.character.inventory.inflated;
 					}
-					return true;
+					
+						
+					if (Math.sqrt(Math.pow((this.getWidth() / 2 - eventX) / MCTPO.pixelSize, 2) + Math.pow((this.getHeight() / 2 - eventY) / MCTPO.pixelSize, 2)) > 60) {
+						MCTPO.fingerDownP.x = event.getX();
+						MCTPO.fingerDownP.y = event.getY();
+						MCTPO.fingerP.x = MCTPO.fingerDownP.x;
+						MCTPO.fingerP.y = MCTPO.fingerDownP.y;
+						//MCTPO.lastFingerP = MCTPO.fingerP;
+						MCTPO.fingerDown = true;
+						return true;
+					} else {
+						MCTPO.fingerBuildDownP.x = event.getX();
+						MCTPO.fingerBuildDownP.y = event.getY();
+						MCTPO.fingerBuildP.x = MCTPO.fingerBuildDownP.x;
+						MCTPO.fingerBuildP.y = MCTPO.fingerBuildDownP.y;
+						MCTPO.fingerBuildDown = true;
+						MCTPO.fingerBuildMoved = false;
+						return true;
+					}
 				case MotionEvent.ACTION_UP:
-					MCTPO.fingerDown = false;
-					MCTPO.fingerBuildDown = false;
-					return true;
+					if (MCTPO.fingerDown) {
+						MCTPO.fingerDown = false;
+						MCTPO.fingerDownP.x = -1;
+						MCTPO.fingerDownP.y = -1;
+						//MCTPO.lastFingerP.x = -1;
+						//MCTPO.lastFingerP.y = -1;
+						MCTPO.fingerP.x = -1;
+						MCTPO.fingerP.y = -1;
+						return true;
+					} else if (MCTPO.fingerBuildDown) {
+						MCTPO.fingerBuildDown = false;
+						MCTPO.fingerBuildP.x = -1;
+						MCTPO.fingerBuildP.y = -1;
+						return true;
+					}
 				case MotionEvent.ACTION_MOVE:
 					if (MCTPO.fingerDown) {
-						MCTPO.lastFingerP = MCTPO.fingerP;
+						//MCTPO.lastFingerP = MCTPO.fingerP;
 						MCTPO.fingerP.x = event.getX();
 						MCTPO.fingerP.y = event.getY();
 						return true;
@@ -155,6 +176,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 						MCTPO.fingerBuildP.x = event.getX();
 						MCTPO.fingerBuildP.y = event.getY();
 						MCTPO.fingerBuildMoved = true;
+						return true;
 					}
 
 				}

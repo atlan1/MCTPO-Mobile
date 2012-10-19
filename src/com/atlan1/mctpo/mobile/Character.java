@@ -11,6 +11,8 @@ import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
+
 import com.atlan1.mctpo.mobile.MCTPO;
 import com.atlan1.mctpo.mobile.Inventory.Inventory;
 import com.atlan1.mctpo.mobile.Inventory.Slot;
@@ -197,6 +199,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 			}else{
 				isJumping = false;
 				jumpCount = 0;
+				setBlockBelow = false;
 			}
 		}		
 		if(isMoving){
@@ -292,6 +295,8 @@ public class Character extends DoubleRectangle implements LivingThing{
 		} else if (this.isMoving) {
 			this.isMoving = false;
 		}
+		Log.d("fingerDownY", String.valueOf(MCTPO.fingerDownP.y));
+		Log.d("fingerY", String.valueOf(MCTPO.fingerP.y));
 		if (MCTPO.fingerDownP.y - MCTPO.fingerP.y  > 70 && MCTPO.fingerDown && !isJumping && isCollidingWithAnyBlock(bounds[bDOWN])) {
 			isJumping = true;
 		} /*else if (isJumping) {
@@ -381,7 +386,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 		if(isBlockInBuildRange(currentBlock) /*&& currentBlock != lastBlock*/){
 			//Log.d("build", "inRange");
 			Material m = currentBlock.material;
-			if(MCTPO.fingerBuildDown && m.nonSolid && buildOn && buildMode != BuildMode.DESTROY_ONLY/* && !this.asRectF().contains((float) MCTPO.fingerBuildP.x, (float) MCTPO.fingerBuildP.y)*/){
+			if(MCTPO.fingerBuildDown && m.nonSolid && buildOn && buildMode != BuildMode.DESTROY_ONLY && MCTPO.fingerBuildP.x != -1 && MCTPO.fingerBuildP.y != -1/* && !this.asRectF().contains((float) MCTPO.fingerBuildP.x, (float) MCTPO.fingerBuildP.y)*/){
 				if (!building) {
 					building = true;
 				}
@@ -396,7 +401,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 					//buildOn = false;
 					return;
 				}
-			} else if(MCTPO.fingerBuildDown && !building && buildMode != BuildMode.BUILD_ONLY){
+			} else if(MCTPO.fingerBuildDown && !building && buildMode != BuildMode.BUILD_ONLY && MCTPO.fingerBuildP.x != -1 && MCTPO.fingerBuildP.y != -1){
 				if (buildOn) {
 					buildOn = false;
 				}
