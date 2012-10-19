@@ -1,5 +1,6 @@
 package com.atlan1.mctpo.mobile;
 
+import com.atlan1.mctpo.mobile.Inventory.Inventory;
 import com.atlan1.mctpo.mobile.Inventory.Slot;
 
 import android.content.Context; 
@@ -115,7 +116,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 					float eventY = event.getY();
 					Slot[] slots = MCTPO.character.inventory.slots;
 					for (int i = 0; i < slots.length; i++) {
-						if (slots[i].contains(eventX / MCTPO.pixelSize, eventY / MCTPO.pixelSize)) {
+						if (slots[i].contains(eventX, eventY)) {
 							MCTPO.character.inventory.selected = i;
 							handled = true;
 							break;

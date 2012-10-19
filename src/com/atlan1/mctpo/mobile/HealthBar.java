@@ -2,7 +2,9 @@ package com.atlan1.mctpo.mobile;
 
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Rect;
 
+import com.atlan1.mctpo.mobile.Inventory.Inventory;
 import com.atlan1.mctpo.mobile.Texture.TextureLoader;
 
 public class HealthBar {
@@ -28,9 +30,13 @@ public class HealthBar {
 	
 	public void render(Canvas canvas) {
 		int heartsLeft = c.health/(c.maxHealth/maxHearts);
+		int xH;
+		int yH;
 		for(int x=0;x<maxHearts;x++){
 			boolean black = heartsLeft-x<0;
-			canvas.drawBitmap(black?hblackIcon:hIcon, ((MCTPO.pixel.width/2)-((maxHearts * (heartSize + heartSpace))/2) +((x * (heartSize + heartSpace)))) * MCTPO.pixelSize, (MCTPO.pixel.height - (c.inventory.slotSize + c.inventory.borderSpace + invBorder + heartSize)) * MCTPO.pixelSize, null);
+			xH = (int) (((MCTPO.pixel.width/2)-((maxHearts * (heartSize + heartSpace))/2) +((x * (heartSize + heartSpace)))) * Inventory.inventoryPixelSize);
+			yH = (int) (MCTPO.size.height - (c.inventory.slotSize + invBorder + heartSize) * MCTPO.pixelSize - c.inventory.borderSpace);
+			canvas.drawBitmap(black?hblackIcon:hIcon, null, new Rect(xH, yH, (int) (xH + heartSize * Inventory.inventoryPixelSize), (int) (yH + heartSize * Inventory.inventoryPixelSize)), null);
 		}
 		
 	}

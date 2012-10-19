@@ -5,6 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.util.Log;
 
 import com.atlan1.mctpo.mobile.MCTPO;
 import com.atlan1.mctpo.mobile.Material;
@@ -34,13 +35,15 @@ public class Slot extends Rectangle {
 	}
 	
 	public void render(Canvas c, boolean selected){
-		c.drawBitmap(slotNormal, null, new Rect((int) (x * MCTPO.pixelSize), (int) (y * MCTPO.pixelSize), (int) ((x + width) * MCTPO.pixelSize), (int) ((y + height) * MCTPO.pixelSize)), null);
+		/*Log.d("slotx", String.valueOf((x)));
+		Log.d("sloty", String.valueOf((y)));*/
+		c.drawBitmap(slotNormal, null, new Rect((int) (x), (int) (y), (int) ((x + width)), (int) ((y + height))), null);
 		if(selected){
-			c.drawBitmap(slotSelected, null, new Rect((int) ((x-1) * MCTPO.pixelSize), (int) ((y-1) * MCTPO.pixelSize), (int) ((x + width+2) * MCTPO.pixelSize), (int) ((y + height+2) * MCTPO.pixelSize)), null);
+			c.drawBitmap(slotSelected, null, new Rect((int) ((x-1)), (int) ((y-1)), (int) ((x + width+2)), (int) ((y + height+2))), null);
 		}
 		if(stackSize>0&&material!=Material.AIR){
-			c.drawBitmap(Material.terrain.getSubImageById(material.id), null, new Rect((int)((x+inv.itemBorder) * MCTPO.pixelSize), (int)((y+inv.itemBorder) * MCTPO.pixelSize), (int)((x + width-inv.itemBorder) * MCTPO.pixelSize), (int)((y + height-inv.itemBorder) * MCTPO.pixelSize)), null);
-			c.drawText(stackSize+"", (x+width-8) * MCTPO.pixelSize, (y+height) * MCTPO.pixelSize, fontPaint);
+			c.drawBitmap(Material.terrain.getSubImageById(material.id), null, new Rect((int)((x+inv.itemBorder)), (int)((y+inv.itemBorder)), (int)((x + width-inv.itemBorder)), (int)((y + height-inv.itemBorder))), null);
+			c.drawText(stackSize+"", (x+width-8), (y+height), fontPaint);
 		}
 	}
 

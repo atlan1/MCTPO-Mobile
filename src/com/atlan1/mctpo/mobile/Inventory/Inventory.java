@@ -18,16 +18,14 @@ public class Inventory {
 	public int itemBorder = 3;
 	public int maxStackSize = 64;
 	
+	public static float inventoryPixelSize = 1.5f;
+	
 	public Slot[] slots = new Slot[invLength];
 	public int selected=0;
 	
 	public Inventory(Character c){
-		int x;
-		int y;
 		for(int i=0;i<slots.length;i++){
-			x = (MCTPO.pixel.width/2)-((invLength * (slotSize + slotSpace))/2)+((i * (slotSize + slotSpace)));
-			y = MCTPO.pixel.height - (slotSize + borderSpace);
-			slots[i] = new Slot(this, new Rectangle(x, y, slotSize, slotSize), Material.AIR);
+			slots[i] = new Slot(this, new Rectangle((int) ((MCTPO.size.width/2) + (-((invLength * (slotSize + slotSpace))/2)+((i * (slotSize + slotSpace)))) * inventoryPixelSize) , (int) (MCTPO.size.height - (slotSize * inventoryPixelSize + borderSpace)), (int) (slotSize * inventoryPixelSize), (int) (slotSize * inventoryPixelSize)), Material.AIR);
 		}
 	}
 	

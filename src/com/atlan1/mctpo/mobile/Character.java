@@ -168,6 +168,8 @@ public class Character extends DoubleRectangle implements LivingThing{
 						}
 						World.blocks[(int) Math.round(x / MCTPO.tileSize)][(int) Math.round(y / 20 + 2)].material = inventory.slots[inventory.selected].material;
 						setBlockBelow = false;
+					} else if (setBlockBelow) {
+						setBlockBelow = false;
 					}
 				}else{
 					y-=jumpingSpeed;
@@ -346,8 +348,8 @@ public class Character extends DoubleRectangle implements LivingThing{
 	}
 	
 	public Block getBlockIncluding(double x, double y) {
-		return World.blocks[(int) ((x + MCTPO.sX) / MCTPO.tileSize)][(int) ((y + MCTPO.sY) / MCTPO.tileSize) - 1];
-		//return World.blocks[(int) ((x + MCTPO.sX - (MCTPO.size.width - MCTPO.pixel.width) / 2) / (MCTPO.tileSize))][(int) ((y + MCTPO.sY - (MCTPO.size.height - MCTPO.pixel.height) / 2) / (MCTPO.tileSize) - 1)]; // -1 only in mobile version
+		return World.blocks[(int) ((x + MCTPO.sX) / MCTPO.tileSize)][(int) ((y + MCTPO.sY) / MCTPO.tileSize) - 1]; // -1 only in mobile version
+		//return World.blocks[(int) ((x + MCTPO.sX - (MCTPO.size.width - MCTPO.pixel.width) / 2) / (MCTPO.tileSize))][(int) ((y + MCTPO.sY - (MCTPO.size.height - MCTPO.pixel.height) / 2) / (MCTPO.tileSize) - 1)];
 	}
 	
 	public boolean isBlockInBuildRange(Block block) {
