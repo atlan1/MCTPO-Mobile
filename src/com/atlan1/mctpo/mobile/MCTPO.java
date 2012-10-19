@@ -14,7 +14,7 @@ public class MCTPO {
 	public static MCTPO mctpo;
 	//public static JFrame frame;
 	
-	public static int pixelSize = 1;
+	public static float pixelSize = 1.5f;
 	//private Image screen;
 	
 	static public Paint blackLine;
@@ -63,7 +63,7 @@ public class MCTPO {
 		MCTPO.context = c;
 		Display d = ((WindowManager)c.getSystemService(Context.WINDOW_SERVICE)).getDefaultDisplay();
 		size = new Dimension(d.getWidth(), d.getHeight());
-		pixel = new Dimension(size.width/*/pixelSize*/, size.height/*/pixelSize*/);
+		pixel = new Dimension(Math.round(size.width/pixelSize), Math.round(size.height/pixelSize));
 		start();
 		//setPreferredSize(size);	
 	}

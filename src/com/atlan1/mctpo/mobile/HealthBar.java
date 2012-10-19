@@ -30,7 +30,7 @@ public class HealthBar {
 		int heartsLeft = c.health/(c.maxHealth/maxHearts);
 		for(int x=0;x<maxHearts;x++){
 			boolean black = heartsLeft-x<0;
-			canvas.drawBitmap(black?hblackIcon:hIcon, (MCTPO.pixel.width/2)-((maxHearts * (heartSize + heartSpace))/2)+((x * (heartSize + heartSpace))), MCTPO.pixel.height - (c.inventory.slotSize + c.inventory.borderSpace + invBorder + heartSize), null);
+			canvas.drawBitmap(black?hblackIcon:hIcon, ((MCTPO.pixel.width/2)-((maxHearts * (heartSize + heartSpace))/2) +((x * (heartSize + heartSpace)))) * MCTPO.pixelSize, (MCTPO.pixel.height - (c.inventory.slotSize + c.inventory.borderSpace + invBorder + heartSize)) * MCTPO.pixelSize, null);
 		}
 		
 	}

@@ -79,7 +79,7 @@ public class World {
 		for(int x=(camX/MCTPO.tileSize);x<(camX/MCTPO.tileSize) + renW;x++){
 			for(int y=(camY/MCTPO.tileSize);y<(camY/MCTPO.tileSize) + renH;y++){
 				if(x>=0 && y>=0 && x<worldW && y<worldH){
-					blocks[x][y].render(c);
+					blocks[x][y - 1].render(c);
 					//renBlocks[x][y] = blocks[x][y];
 					/*if(blocks[x][y].contains(new Point(MCTPO.mouse.x + (int)MCTPO.sX, MCTPO.mouse.y + (int)MCTPO.sY))&&character.isBlockInBuildRange(blocks[x][y])){
 						c.drawRect(blocks[x][y].x-camX, blocks[x][y].y-camY, blocks[x][y].x-camX + blocks[x][y].width-1, blocks[x][y].y-camY + blocks[x][y].height-1, blackBorders);

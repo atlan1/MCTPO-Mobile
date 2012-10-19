@@ -34,13 +34,13 @@ public class Slot extends Rectangle {
 	}
 	
 	public void render(Canvas c, boolean selected){
-		c.drawBitmap(slotNormal, null, new Rect(x, y, x + width, y + height), null);
+		c.drawBitmap(slotNormal, null, new Rect((int) (x * MCTPO.pixelSize), (int) (y * MCTPO.pixelSize), (int) ((x + width) * MCTPO.pixelSize), (int) ((y + height) * MCTPO.pixelSize)), null);
 		if(selected){
-			c.drawBitmap(slotSelected, null, new Rect(x-1, y-1, x + width+2, y + height+2), null);
+			c.drawBitmap(slotSelected, null, new Rect((int) ((x-1) * MCTPO.pixelSize), (int) ((y-1) * MCTPO.pixelSize), (int) ((x + width+2) * MCTPO.pixelSize), (int) ((y + height+2) * MCTPO.pixelSize)), null);
 		}
 		if(stackSize>0&&material!=Material.AIR){
-			c.drawBitmap(Material.terrain.getSubImageById(material.id), null, new Rect((int)x+inv.itemBorder, (int)y+inv.itemBorder, (int)(x + width-inv.itemBorder), (int)(y + height-inv.itemBorder)), null);
-			c.drawText(stackSize+"", x+width-8, y+height, fontPaint);
+			c.drawBitmap(Material.terrain.getSubImageById(material.id), null, new Rect((int)((x+inv.itemBorder) * MCTPO.pixelSize), (int)((y+inv.itemBorder) * MCTPO.pixelSize), (int)((x + width-inv.itemBorder) * MCTPO.pixelSize), (int)((y + height-inv.itemBorder) * MCTPO.pixelSize)), null);
+			c.drawText(stackSize+"", (x+width-8) * MCTPO.pixelSize, (y+height) * MCTPO.pixelSize, fontPaint);
 		}
 	}
 

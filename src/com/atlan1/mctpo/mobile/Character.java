@@ -11,7 +11,6 @@ import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-
 import com.atlan1.mctpo.mobile.MCTPO;
 import com.atlan1.mctpo.mobile.Inventory.Inventory;
 import com.atlan1.mctpo.mobile.Inventory.Slot;
@@ -62,6 +61,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 	public int damageTime=10, damageFrame=0;
 	public int destroyTime=0;
 	public boolean buildOn = true;
+	private boolean building = false;
 	public Block currentBlock;
 	public Block lastBlock;
 	public final int bUP = 0, bDOWN = 1, bRIGHT = 2, bLEFT = 3;
@@ -111,13 +111,13 @@ public class Character extends DoubleRectangle implements LivingThing{
 		Log.d("Block below y2", String.valueOf((int)(y + height) - 1 - (int) MCTPO.sY));
 		c.drawBitmap(Material.terrain.getSubImageById(1), new Rect(0, 0, MCTPO.tileSize, MCTPO.tileSize), new Rect((int)x - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, (int)(x + width) - (int) MCTPO.sX, (int)(y + height) - (int) MCTPO.sY), null);*/
 		if(dir>=0) 
-			c.drawBitmap(animationTexture, new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+((animation + 1) * MCTPO.tileSize), ((character[1] + 2) * MCTPO.tileSize)), new Rect((int)x - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, (int)(x + width) - (int) MCTPO.sX, (int)(y + height) - (int) MCTPO.sY), damaged?redFilter:null);
+			c.drawBitmap(animationTexture, new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+((animation + 1) * MCTPO.tileSize), ((character[1] + 2) * MCTPO.tileSize)), new Rect((int)((x -  MCTPO.sX) * MCTPO.pixelSize), (int) ((y - MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize), (int) (((x + width) - MCTPO.sX) * MCTPO.pixelSize), (int) ((int)((y + height) - (int) MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize)), damaged?redFilter:null);
 			//c.drawBitmap(animationTexture, (int)(x + width) - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, damaged?redFilter:null);
 			/*Rect src = new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+(animation * MCTPO.tileSize)+ (int) width, (character[1] * MCTPO.tileSize) + (int) height);
 			Rect dst = new Rect((int)x - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, (int)(x + width) - (int) MCTPO.sX, (int)(y + height) - (int) MCTPO.sY);
 			c.drawBitmap(animationTexture, src, dst, damaged?redFilter:null);*/
 		else
-			c.drawBitmap(animationTextureFlipped, new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+((animation + 1) * MCTPO.tileSize), ((character[1] + 2) * MCTPO.tileSize)), new Rect((int)x - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, (int)(x + width) - (int) MCTPO.sX, (int)(y + height) - (int) MCTPO.sY), damaged?redFilter:null);
+			c.drawBitmap(animationTextureFlipped, new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+((animation + 1) * MCTPO.tileSize), ((character[1] + 2) * MCTPO.tileSize)), new Rect((int)((x -  MCTPO.sX) * MCTPO.pixelSize), (int) ((y - MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize), (int) (((x + width) - MCTPO.sX) * MCTPO.pixelSize), (int) ((int)((y + height) - (int) MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize)), damaged?redFilter:null);
 			//c.drawBitmap(animationTextureFlipped, (int)(x + width) - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, damaged?redFilter:null);
 			/*Rect src = new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+(animation * MCTPO.tileSize)+ (int) width, (character[1] * MCTPO.tileSize) + (int) height);
 			Rect dst = new Rect((int)(x + width) - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, (int)x - (int) MCTPO.sX, (int)(y + height) - (int) MCTPO.sY);
@@ -232,8 +232,14 @@ public class Character extends DoubleRectangle implements LivingThing{
 		}else{
 			destroyTime=0;
 		}
-		if (!MCTPO.fingerBuildDown && !buildOn) {
-			buildOn = true;
+		if (!MCTPO.fingerBuildDown) {
+			if (!buildOn) {
+				buildOn = true;
+			}
+			if (building) {
+				building = false;
+			}
+				
 		}
 		lastBlock = currentBlock;
 		currentBlock = getCurrentBlock();
@@ -257,7 +263,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 			} else if (MCTPO.fingerP.x >= (MCTPO.size.width) / 2 + 30) {
 				isMoving = true;
 				dir = movementSpeed;
-			} else if (!isJumping && (MCTPO.fingerP.y <= (MCTPO.size.height) / 2 - 50)) {
+			} else if (!isJumping && (MCTPO.fingerP.y <= (MCTPO.size.height) / 2 - 50) && isCollidingWithAnyBlock(bounds[bDOWN])) {
 				isJumping = true;
 			} else if (!isJumping && (MCTPO.fingerP.y >= (MCTPO.size.height) / 2 + 50) && isCollidingWithAnyBlock(bounds[bDOWN])) {
 				isJumping = true;
@@ -308,10 +314,14 @@ public class Character extends DoubleRectangle implements LivingThing{
 				}
 			}*/
 			try {
-				Block b = getBlockIncluding(MCTPO.fingerBuildP.x, MCTPO.fingerBuildP.y);
+				Block b = getBlockIncluding(MCTPO.fingerBuildP.x / MCTPO.pixelSize, MCTPO.fingerBuildP.y / MCTPO.pixelSize);
+				/*Log.d("bx", String.valueOf(b.x));
+				Log.d("by", String.valueOf(b.y));
+				Log.d("px", String.valueOf(x));
+				Log.d("py", String.valueOf(y));*/
 				return b;
 			} catch (Exception e) {
-				
+				e.printStackTrace();
 			}
 		}
 		/*else {
@@ -336,17 +346,25 @@ public class Character extends DoubleRectangle implements LivingThing{
 	}
 	
 	public Block getBlockIncluding(double x, double y) {
-		return World.blocks[(int) ((x + MCTPO.sX) / MCTPO.tileSize)][(int) ((y + MCTPO.sY) / MCTPO.tileSize)];
+		return World.blocks[(int) ((x + MCTPO.sX) / MCTPO.tileSize)][(int) ((y + MCTPO.sY) / MCTPO.tileSize) - 1];
+		//return World.blocks[(int) ((x + MCTPO.sX - (MCTPO.size.width - MCTPO.pixel.width) / 2) / (MCTPO.tileSize))][(int) ((y + MCTPO.sY - (MCTPO.size.height - MCTPO.pixel.height) / 2) / (MCTPO.tileSize) - 1)]; // -1 only in mobile version
 	}
 	
 	public boolean isBlockInBuildRange(Block block) {
-		return Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x + (int)MCTPO.sX) - (int)(this.x+width/2)), 2) + Math.pow(((MCTPO.fingerBuildP.y + (int)MCTPO.sY) - (int)(this.y+height/2)) , 2))) <= buildRange;
+		//Log.d("range", String.valueOf(Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x / MCTPO.tileSize + MCTPO.sX + (MCTPO.size.width - MCTPO.pixel.width) / 2 - (int)(this.x+width/2))), 2) + Math.pow(((MCTPO.fingerBuildP.y / MCTPO.tileSize + MCTPO.sY + (MCTPO.size.height - MCTPO.pixel.height) / 2) - (int)(this.y+height/2)) , 2)))));
+		//Log.d("rangeValue", String.valueOf(buildRange * MCTPO.pixelSize));
+		return Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x / MCTPO.pixelSize + (int)MCTPO.sX) - (int)(this.x+width/2)), 2) + Math.pow(((MCTPO.fingerBuildP.y / MCTPO.pixelSize + (int)MCTPO.sY) - (int)(this.y+height/2)) , 2))) <= buildRange;
+		//return Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x + MCTPO.sX - (MCTPO.size.width - MCTPO.pixel.width) / 2 - (int)(this.x+width/2))), 2) + Math.pow(((MCTPO.fingerBuildP.y + MCTPO.sY - (MCTPO.size.height - MCTPO.pixel.height) / 2) - (int)(this.y+height/2)) , 2))) <= buildRange * MCTPO.pixelSize;
 	}
 	
 	public void build(){
 		if(isBlockInBuildRange(currentBlock) /*&& currentBlock != lastBlock*/){
+			//Log.d("build", "inRange");
 			Material m = currentBlock.material;
 			if(MCTPO.fingerBuildDown && m.nonSolid && buildOn/* && !this.asRectF().contains((float) MCTPO.fingerBuildP.x, (float) MCTPO.fingerBuildP.y)*/){
+				if (!building) {
+					building = true;
+				}
 				if(inventory.slots[inventory.selected].material != Material.AIR){
 					if(inventory.slots[inventory.selected].stackSize>0)
 						inventory.slots[inventory.selected].stackSize--;
@@ -355,10 +373,10 @@ public class Character extends DoubleRectangle implements LivingThing{
 						inventory.slots[inventory.selected].material = Material.AIR;
 					}
 					currentBlock.material = inventory.slots[inventory.selected].material;
-					buildOn = false;
+					//buildOn = false;
 					return;
 				}
-			} else if(MCTPO.fingerBuildDown){
+			} else if(MCTPO.fingerBuildDown && !building){
 				if (buildOn) {
 					buildOn = false;
 				}

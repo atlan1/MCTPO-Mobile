@@ -58,9 +58,9 @@ public class GameActivity extends Activity {
 			}
 			BitmapHelper.saveBitmapToSdcard(bitmap, "Screenshots" + File.separator + name);
 			
-			for (int j = 0; j <= 40; j++) {
+			/*for (int j = 0; j <= 40; j++) {
 				BitmapHelper.saveBitmapToSdcard(Material.terrain.getSubImageById(j), "Screenshots/terrain" + j + ".jpg");
-			}
+			}*/
 			
 			
 			Toast.makeText(this, "Screenshot saved to: " + "Screenshots/" + name, Toast.LENGTH_LONG).show();

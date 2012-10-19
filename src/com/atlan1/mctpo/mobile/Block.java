@@ -9,7 +9,6 @@ import com.atlan1.mctpo.mobile.Graphics.Rectangle;
 import android.graphics.Canvas;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.util.Log;
 
 public class Block extends Rectangle implements Thing{
 	public Material material = Material.AIR;
@@ -73,7 +72,7 @@ public class Block extends Rectangle implements Thing{
 			Log.d("Block below y2", String.valueOf(y - MCTPO.sY + height));
 			Log.d("heigt", String.valueOf(height));
 			Log.d("width", String.valueOf(width));*/
-			c.drawBitmap(Material.terrain.getSubImageById(material.id), null, new RectF((float) (x - MCTPO.sX),(float) (y - MCTPO.sY), (float) (x + width - MCTPO.sX) , (float) (y + height - MCTPO.sY)), null);
+			c.drawBitmap(Material.terrain.getSubImageById(material.id), null, new RectF((float) (x - MCTPO.sX) * MCTPO.pixelSize,(float) (y - MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize, (float) (x + width - MCTPO.sX) * MCTPO.pixelSize , (float) (y + height - MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize), null);
 		}
 	}
 	

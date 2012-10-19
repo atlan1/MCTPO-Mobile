@@ -115,14 +115,14 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 					float eventY = event.getY();
 					Slot[] slots = MCTPO.character.inventory.slots;
 					for (int i = 0; i < slots.length; i++) {
-						if (slots[i].contains(eventX, eventY)) {
+						if (slots[i].contains(eventX / MCTPO.pixelSize, eventY / MCTPO.pixelSize)) {
 							MCTPO.character.inventory.selected = i;
 							handled = true;
 							break;
 						}
 					}
 					if (!handled) {	
-						if (Math.sqrt(Math.pow(this.getWidth() / 2 - eventX, 2) + Math.pow(this.getHeight() / 2 - eventY, 2)) > 60) {
+						if (Math.sqrt(Math.pow((this.getWidth() / 2 - eventX) / MCTPO.pixelSize, 2) + Math.pow((this.getHeight() / 2 - eventY) / MCTPO.pixelSize, 2)) > 60) {
 							MCTPO.fingerDownP = new com.atlan1.mctpo.mobile.Graphics.Point((double)event.getX(), (double)event.getY());
 							MCTPO.fingerP = MCTPO.fingerDownP;
 							MCTPO.lastFingerP = MCTPO.fingerP;
