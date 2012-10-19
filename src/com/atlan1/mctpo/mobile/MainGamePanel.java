@@ -130,6 +130,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 					
 					if (Inventory.inflateButtonRect.contains((int) eventX, (int) eventY)) {
 						MCTPO.character.inventory.inflated = !MCTPO.character.inventory.inflated;
+						return true;
 					}
 					
 						
