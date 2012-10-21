@@ -11,7 +11,6 @@ import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
-import android.util.Log;
 
 import com.atlan1.mctpo.mobile.MCTPO;
 import com.atlan1.mctpo.mobile.Inventory.Inventory;
@@ -295,8 +294,8 @@ public class Character extends DoubleRectangle implements LivingThing{
 		} else if (this.isMoving) {
 			this.isMoving = false;
 		}
-		Log.d("fingerDownY", String.valueOf(MCTPO.fingerDownP.y));
-		Log.d("fingerY", String.valueOf(MCTPO.fingerP.y));
+		//Log.d("fingerDownY", String.valueOf(MCTPO.fingerDownP.y));
+		//Log.d("fingerY", String.valueOf(MCTPO.fingerP.y));
 		if (MCTPO.fingerDownP.y - MCTPO.fingerP.y  > 70 && MCTPO.fingerDown && !isJumping && isCollidingWithAnyBlock(bounds[bDOWN])) {
 			isJumping = true;
 		} /*else if (isJumping) {
