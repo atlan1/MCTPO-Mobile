@@ -378,7 +378,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 	public boolean isBlockInBuildRange(Block block) {
 		//Log.d("range", String.valueOf(Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x / MCTPO.tileSize + MCTPO.sX + (MCTPO.size.width - MCTPO.pixel.width) / 2 - (int)(this.x+width/2))), 2) + Math.pow(((MCTPO.fingerBuildP.y / MCTPO.tileSize + MCTPO.sY + (MCTPO.size.height - MCTPO.pixel.height) / 2) - (int)(this.y+height/2)) , 2)))));
 		//Log.d("rangeValue", String.valueOf(buildRange * MCTPO.pixelSize));
-		return Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x / MCTPO.pixelSize + (int)MCTPO.sX) - (int)(this.x+width/2)), 2) + Math.pow(((MCTPO.fingerBuildP.y / MCTPO.pixelSize + (int)MCTPO.sY) - (int)(this.y+height/2)) - MCTPO.pixelSize * MCTPO.tileSize, 2))) <= buildRange;
+		return Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x / MCTPO.pixelSize + (int)MCTPO.sX) - (int)(this.x+width/2)), 2) + Math.pow(((MCTPO.fingerBuildP.y / MCTPO.pixelSize + (int)MCTPO.sY) - (int)(this.y+height/2)) , 2))) <= buildRange;
 		//return Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x + MCTPO.sX - (MCTPO.size.width - MCTPO.pixel.width) / 2 - (int)(this.x+width/2))), 2) + Math.pow(((MCTPO.fingerBuildP.y + MCTPO.sY - (MCTPO.size.height - MCTPO.pixel.height) / 2) - (int)(this.y+height/2)) , 2))) <= buildRange * MCTPO.pixelSize;
 	}
 	
