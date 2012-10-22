@@ -1,5 +1,6 @@
 package com.atlan1.mctpo.mobile;
 
+import com.atlan1.mctpo.mobile.HUD.InventoryBar;
 import com.atlan1.mctpo.mobile.Inventory.Inventory;
 import com.atlan1.mctpo.mobile.Inventory.Slot;
 
@@ -108,28 +109,50 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 
 	@Override
 	public boolean onTouchEvent(MotionEvent event) {
+		try {
 			synchronized (this) {
 				switch(event.getAction()) {
 				case MotionEvent.ACTION_DOWN:
 					float eventX = event.getX();
 					float eventY = event.getY();
-					Slot[] slots = MCTPO.character.inventory.slots;
+					Slot[] slots = MCTPO.character.hud.getWidget(InventoryBar.class).slots;
 					if ((eventX >= MCTPO.size.width - Character.modeButtonSize && eventX <= MCTPO.size.width && eventY >= 0 && eventY <= Character.modeButtonSize)) {
 						MCTPO.character.buildMode = MCTPO.character.buildMode.getNext();
 						return true;
 					}
 					
-					if (MCTPO.character.inventory.inflated) {
+					if (MCTPO.character.hud.getWidget(InventoryBar.class).inflated) {
 						for (int i = 0; i < slots.length; i++) {
 							if (slots[i].contains(eventX, eventY)) {
-								MCTPO.character.inventory.selected = i;
+								//MCTPO.character.hud.getWidget(InventoryBar.class).selected = i;
+								MCTPO.character.inv.selected = i;
 								return true;
 							}
 						}
+						
+
 					}
 					
-					if (Inventory.inflateButtonRect.contains((int) eventX, (int) eventY)) {
-						MCTPO.character.inventory.inflated = !MCTPO.character.inventory.inflated;
+					if (InventoryBar.inflateButtonRect.contains((int) eventX, (int) eventY)) {
+						MCTPO.character.hud.getWidget(InventoryBar.class).inflated = !MCTPO.character.hud.getWidget(InventoryBar.class).inflated;
+						return true;
+					}
+					
+					if (InventoryBar.openButtonRect.contains((int) eventX, (int) eventY)) {
+						MCTPO.character.inv.setOpen(!MCTPO.character.inv.isOpen());
+						return true;
+					}
+					
+					if (MCTPO.character.inv.isOpen()) {
+						for (Slot s: MCTPO.character.inv.slots) {
+							if (s.contains(eventX, eventY)) {
+								Inventory.dragStack = new ItemStack(s.itemstack.material, s.itemstack.stacksize);
+								s.itemstack = new ItemStack(Material.AIR);
+								Inventory.startDragSlot = s;
+								Inventory.dragX = eventX;
+								Inventory.dragY = eventY;
+							}
+						}
 						return true;
 					}
 					
@@ -150,7 +173,7 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 						MCTPO.fingerBuildDown = true;
 						MCTPO.fingerBuildMoved = false;
 						return true;
-					}
+					} 
 				case MotionEvent.ACTION_UP:
 					if (MCTPO.fingerDown) {
 						MCTPO.fingerDown = false;
@@ -166,7 +189,35 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 						MCTPO.fingerBuildP.x = -1;
 						MCTPO.fingerBuildP.y = -1;
 						return true;
-					}
+					} else if (Inventory.dragStack != null) {
+						for (Slot s: MCTPO.character.inv.slots) {
+							if (s.contains(event.getX(), event.getY())) {
+								if (s.itemstack.material == Material.AIR) {
+									s.itemstack = Inventory.dragStack;
+									Inventory.dragStack = new ItemStack(Material.AIR);
+									return true;
+								} else if (s.itemstack.material == Inventory.dragStack.material) {
+									s.itemstack.stacksize += Inventory.dragStack.stacksize;
+									if (s.itemstack.stacksize > Inventory.maxStackSize) {
+										Inventory.dragStack.stacksize = s.itemstack.stacksize - Inventory.maxStackSize;
+										s.itemstack.stacksize = Inventory.maxStackSize;
+										Inventory.startDragSlot.itemstack = Inventory.dragStack;
+										
+									}
+									Inventory.dragStack = new ItemStack(Material.AIR);
+									return true;
+								} else {
+									Inventory.startDragSlot.itemstack = new ItemStack(Inventory.dragStack.material, Inventory.dragStack.stacksize);
+									Inventory.dragStack = new ItemStack(Material.AIR);
+									return true;
+								}
+								
+							}
+						}
+						Inventory.startDragSlot.itemstack = Inventory.dragStack;
+						Inventory.dragStack = new ItemStack(Material.AIR);
+						return true;
+					} break;
 				case MotionEvent.ACTION_MOVE:
 					if (MCTPO.fingerDown) {
 						//MCTPO.lastFingerP = MCTPO.fingerP;
@@ -178,6 +229,9 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 						MCTPO.fingerBuildP.y = event.getY();
 						MCTPO.fingerBuildMoved = true;
 						return true;
+					} else if (Inventory.dragStack != null) {
+						Inventory.dragX = event.getX();
+						Inventory.dragY = event.getY();
 					}
 
 				}
@@ -188,6 +242,8 @@ public class MainGamePanel extends SurfaceView implements SurfaceHolder.Callback
 				}*/
 			}
 			return true;
+		} catch (Exception e) {} //touching before the initialization finished causes a NullPointerException
+		return true;
 	}
 
 	@Override 

@@ -2,7 +2,7 @@ package com.atlan1.mctpo.mobile.Physics.BlockPhysics;
 
 import com.atlan1.mctpo.mobile.Block;
 import com.atlan1.mctpo.mobile.Material;
-import com.atlan1.mctpo.mobile.Thing;
+import com.atlan1.mctpo.mobile.API.Thing;
 
 public class LeavesPhysics implements BlockPhysics{
 

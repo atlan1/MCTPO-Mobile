@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import com.atlan1.mctpo.mobile.MCTPO;
+import com.atlan1.mctpo.mobile.API.Thing;
 import com.atlan1.mctpo.mobile.Graphics.Rectangle;
 
 import android.graphics.Canvas;
@@ -72,7 +73,7 @@ public class Block extends Rectangle implements Thing{
 			Log.d("Block below y2", String.valueOf(y - MCTPO.sY + height));
 			Log.d("heigt", String.valueOf(height));
 			Log.d("width", String.valueOf(width));*/
-			c.drawBitmap(Material.terrain.getSubImageById(material.id), null, new RectF((float) (x - MCTPO.sX) * MCTPO.pixelSize,(float) (y - MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize, (float) (x + width - MCTPO.sX) * MCTPO.pixelSize , (float) (y + height - MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize), null);
+			c.drawBitmap(Material.terrain.getSubImageById(material.id), null, new RectF((float) (x - MCTPO.sX) * MCTPO.pixelSize,(float) (y - MCTPO.sY + MCTPO.blockSize) * MCTPO.pixelSize, (float) (x + width - MCTPO.sX) * MCTPO.pixelSize , (float) (y + height - MCTPO.sY + MCTPO.blockSize) * MCTPO.pixelSize), null);
 		}
 	}
 	
@@ -109,11 +110,11 @@ public class Block extends Rectangle implements Thing{
 	}
 	
 	public int getGridX(){
-		return x/MCTPO.tileSize;
+		return x/MCTPO.blockSize;
 	}
 	
 	public int getGridY(){
-		return y/MCTPO.tileSize;
+		return y/MCTPO.blockSize;
 	}
 
 	

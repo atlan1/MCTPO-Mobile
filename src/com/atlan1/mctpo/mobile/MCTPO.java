@@ -26,7 +26,7 @@ public class MCTPO {
 		blackLine.setARGB(255, 0, 0, 0);
 	}
 	
-	public static int tileSize = 20;
+	public static int blockSize = 20;
 	
 	public static Dimension size;
 	public static Dimension pixel;
@@ -74,7 +74,7 @@ public class MCTPO {
 		//setCursor(buildCursor);
 		//requestFocus();
 		
-		character = new Character(MCTPO.tileSize, MCTPO.tileSize * 2);
+		character = new Character(MCTPO.blockSize, MCTPO.blockSize * 2);
 		world = new World(character);
 		sky = new Sky();
 		
@@ -110,8 +110,7 @@ public class MCTPO {
 	public void tick() {
 		character.tick();
 		sky.tick();
-		world.tick((int)sX, (int)sY, (pixel.width / tileSize) + 8, (pixel.height / tileSize) + 8);
-		character.inventory.tick();
+		world.tick((int)sX, (int)sY, (pixel.width / blockSize) + 8, (pixel.height / blockSize) + 8);
 	}
 	
 	public void render(Canvas canvas) {
@@ -119,9 +118,9 @@ public class MCTPO {
 		sky.render(canvas);
 		
 		character.render(canvas);
-		world.render(canvas, (int)sX, (int)sY, (pixel.width / tileSize) + 2, (pixel.height / tileSize) + 2);
-		character.inventory.render(canvas);
-		character.healthBar.render(canvas);
+		world.render(canvas, (int)sX, (int)sY, (pixel.width / blockSize) + 2, (pixel.height / blockSize) + 2);
+		character.hud.render(canvas);
+		character.inv.render(canvas);
 		
 		canvas.drawBitmap(character.buildMode == BuildMode.BUILD_DESTROY?Character.buildDestroyButton:character.buildMode == BuildMode.BUILD_ONLY?Character.buildOnlyButton:Character.destroyOnlyButton, null, new Rect(MCTPO.size.width - Character.modeButtonSize, 0, MCTPO.size.width, Character.modeButtonSize), null);
 		
@@ -135,10 +134,14 @@ public class MCTPO {
 			pixelSize = i;
 			pixel.width = (int) (size.width / i);
 			pixel.height = (int) (size.height / i);
-			sX = character.x - pixel.width / 2 + character.width / 2;
-			sY = character.y - pixel.height / 2 + character.height;
+			moveCamera(character.x, character.y);
 		}
 		
+	}
+	
+	public static void moveCamera(double x, double y) {
+		MCTPO.sX = x - (MCTPO.pixel.width / 2) + character.width / 2;
+		MCTPO.sY = y - (MCTPO.pixel.height / 2) + character.height;
 	}
 
 	/*public static BufferedImage toBufferedImage(Image image) {

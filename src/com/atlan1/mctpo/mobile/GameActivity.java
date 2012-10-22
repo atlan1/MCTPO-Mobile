@@ -75,6 +75,9 @@ public class GameActivity extends Activity implements OnSeekBarChangeListener {
 			if (layout.getChildCount() > 1) {
 				layout.removeViewAt(1);
 				return true;
+			} else if (MCTPO.character.inv.isOpen()) {
+				MCTPO.character.inv.setOpen(false);
+				return true;
 			}
 		}
 		return super.onKeyUp(keyCode, event);
@@ -124,7 +127,9 @@ public class GameActivity extends Activity implements OnSeekBarChangeListener {
 			break;
 		case R.id.inventory_size_bar:
 			Inventory.inventoryPixelSize = seekBar.getProgress() / 10f;
-			MCTPO.character.inventory = new Inventory(MCTPO.character.inventory);
+			//MCTPO.character.inventory = new Inventory(MCTPO.character.inventory);
+			MCTPO.character.hud.calcPosition();
+			MCTPO.character.inv.calcPosition();
 		}
 	}
 

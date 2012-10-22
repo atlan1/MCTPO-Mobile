@@ -14,7 +14,7 @@ public class TextureLoader {
 		InputStream is = null;
 		try {
 			is = MCTPO.context.getResources().getAssets().open(assetsPath);
-			image = new SpriteImage(BitmapFactory.decodeStream(is), MCTPO.tileSize);
+			image = new SpriteImage(BitmapFactory.decodeStream(is), MCTPO.blockSize);
 		} catch (Exception e) {
 			e.printStackTrace();
 		} finally {

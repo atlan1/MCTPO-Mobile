@@ -3,85 +3,127 @@ package com.atlan1.mctpo.mobile.Inventory;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 
 import com.atlan1.mctpo.mobile.Character;
+import com.atlan1.mctpo.mobile.ItemStack;
 import com.atlan1.mctpo.mobile.MCTPO;
 import com.atlan1.mctpo.mobile.Material;
-import com.atlan1.mctpo.mobile.Graphics.Rectangle;
-import com.atlan1.mctpo.mobile.Texture.TextureLoader;
+import com.atlan1.mctpo.mobile.API.Widget;
+import com.atlan1.mctpo.mobile.HUD.InventoryBar;
 
-public class Inventory {
+public class Inventory implements Widget {
 	
-	public int invLength = 8;
-	public int slotSize = 25;
-	public int slotSpace = 5;
-	public int borderSpace = 20;
-	public int itemBorder = 3;
-	public int maxStackSize = 64;
-	public boolean inflated = true;
+	private boolean open = false;
 	
-	public static Paint transparentPaint;
+	public static int invLength = 8;
+	public static int invHeight = 5;
+	public static int slotSize = 25;
+	public static int slotSpace = 5;
+	public static int borderSpace = 20;
+	public static int itemBorder = 3;
+	public static int maxStackSize = 64;
+	public static int cursorSize = 20;
 	
-	public static Bitmap inflateButton;
-	public static Rect inflateButtonRect;
+	
+	public static Paint backgroundInvOpenPaint;
+	
+	
 	
 	static {
-		transparentPaint = new Paint();
-		transparentPaint.setColor(Color.WHITE);
-		transparentPaint.setAlpha(200);
 		
-		inflateButton = TextureLoader.loadImage("images/lol.png");
+		backgroundInvOpenPaint = new Paint();
+		backgroundInvOpenPaint.setARGB(130, 200, 200, 200);
+		
 	}
 	
 	public static float inventoryPixelSize = 1.5f;
+
+	public static ItemStack dragStack;
+	public static Slot startDragSlot;
+
+	public static float dragX = -1;
+	public static float dragY = -1;
 	
-	public Slot[] slots = new Slot[invLength];
+	private InventoryBar invBar;
+	public Slot[] slots = new Slot[invLength*invHeight];
 	public int selected=0;
 	
-	public Inventory(Character c){
+	
+	public Inventory(Character c, InventoryBar invBar){
+		this.invBar = invBar;
 		for(int i=0;i<slots.length;i++){
-			slots[i] = new Slot(this, new Rectangle((int) ((MCTPO.size.width/2) + (-((invLength * (slotSize + slotSpace))/2)+((i * (slotSize + slotSpace)))) * inventoryPixelSize) , (int) (MCTPO.size.height - (slotSize * inventoryPixelSize + borderSpace)), (int) (slotSize * inventoryPixelSize), (int) (slotSize * inventoryPixelSize)), Material.AIR);
+			slots[i] = new Slot(new ItemStack(Material.AIR));
 		}
-		initializeInflateButton();
+		calcPosition();
 	}
 	
 	public Inventory(Inventory inventory) {
 		for(int i=0;i<slots.length;i++){
-			slots[i] = new Slot(this, new Rectangle((int) ((MCTPO.size.width/2) + (-((invLength * (slotSize + slotSpace))/2)+((i * (slotSize + slotSpace)))) * inventoryPixelSize) , (int) (MCTPO.size.height - (slotSize * inventoryPixelSize + borderSpace)), (int) (slotSize * inventoryPixelSize), (int) (slotSize * inventoryPixelSize)), inventory.slots[i].material);
-			slots[i].stackSize = inventory.slots[i].stackSize;
+			slots[i] = inventory.slots[i];
 		}
+		calcPosition();
 		selected = inventory.selected;
-		initializeInflateButton();
+	}
+	
+	public void calcPosition() {
+		int x=0, y=0;
+		Rect posRect;
+		for(int i=0;i<slots.length;i++){
+			int xPos = (int) ((MCTPO.size.width/2) + (-((Inventory.invLength * (Inventory.slotSize + Inventory.slotSpace))/2)+((x * (Inventory.slotSize + Inventory.slotSpace)))) * Inventory.inventoryPixelSize);
+			int yPos = (int) (MCTPO.size.height - (y + 2) * (Inventory.slotSize * Inventory.inventoryPixelSize + Inventory.slotSpace) - Inventory.borderSpace);
+			posRect = new Rect(xPos, yPos, (int) (xPos + Inventory.slotSize * Inventory.inventoryPixelSize), (int) (yPos + Inventory.slotSize * Inventory.inventoryPixelSize));
+			slots[i].setBounds(posRect);
+			
+			x++;
+			if(x>=invLength){
+				x=0;
+				y++;
+			}
+		}
+
+		
+		
 	}
 
 	public void render(Canvas c){
-		if (inflated) {
+		if(open){
+			c.drawRect(new Rect(0, 0, MCTPO.size.width, MCTPO.size.height), backgroundInvOpenPaint);
 			for(int i=0;i<slots.length;i++){
-				slots[i].render(c, i==selected);
+				slots[i].render(c, false);
 			}
-		}
-		c.drawBitmap(inflateButton, null, inflateButtonRect, transparentPaint);
+			if (dragStack.material != Material.AIR) {
+				float offset = MCTPO.blockSize * inventoryPixelSize / 2;
+				c.drawBitmap(Material.terrain.getSubImageById(dragStack.material.id), null, new Rect((int) (dragX - offset), (int) (dragY - offset), (int) (dragX + MCTPO.blockSize * inventoryPixelSize - offset), (int) (dragY + MCTPO.blockSize * inventoryPixelSize - offset)), null);
+			}
+		}	
+		
 	}
 
 	public void tick() {
-		
+		for(Slot s : slots) {
+			s.tick();
+		}
+		for(int i=0;i<Inventory.invLength;i++){
+			if(!(slots[i].equals(invBar.slots[i]))){
+				invBar.slots[i].itemstack = new ItemStack(slots[i].itemstack);
+			}
+		}
+
 	}
 	
 	public boolean containsMaterial(Material m){
 		for(Slot s : slots){
-			if(m==s.material) return true;
+			if(m==s.itemstack.material) return true;
 		}
 		return false;
 	}
 	
 	public Slot getSlot(Material m){
 		for(Slot s : slots){
-			if(m==s.material) return s;
+			if(m==s.itemstack.material) return s;
 		}
 		return null;
 	}
@@ -89,7 +131,7 @@ public class Inventory {
 	public Slot[] getSlotsContaining(Material m){
 		List<Slot> slots2 = new ArrayList<Slot>();
 		for(int i=0;i<slots.length;i++){
-			if(slots[i].material == m)
+			if(slots[i].itemstack.material == m)
 				slots2.add(slots[i]);
 		}
 		return slots2.toArray(new Slot[slots2.size()]);
@@ -97,15 +139,20 @@ public class Inventory {
 	
 	public void clear(){
 		for(Slot s : slots){
-			s.material = Material.AIR;
-			s.stackSize = 0;
+			s.itemstack.material = Material.AIR;
+			s.itemstack.stacksize = 0;
 		}
 			
 	}
 	
-	public void initializeInflateButton() {
-		int inflateX = (int) ((MCTPO.size.width/2) + (-((invLength * (slotSize + slotSpace))/2)+((- 1 * (slotSize + slotSpace)))) * inventoryPixelSize);
-		int inflateY = (int) (MCTPO.size.height - (slotSize * inventoryPixelSize + borderSpace));
-		inflateButtonRect = new Rect(inflateX, inflateY, (int) (inflateX + slotSize * inventoryPixelSize), (int) (inflateY + slotSize * inventoryPixelSize));
+	public boolean isOpen() {
+		return open;
 	}
+	
+	public void setOpen(boolean o) {
+		open = o;
+	}
+
+	
+	
 }

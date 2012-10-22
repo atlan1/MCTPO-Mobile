@@ -32,7 +32,7 @@ public class World {
 		character = c;
 		for(int x=0;x<blocks.length;x++){
 			for(int y=0;y<blocks[0].length;y++){
-				blocks[x][y] = new Block(new Rectangle(x * MCTPO.tileSize, y * MCTPO.tileSize, MCTPO.tileSize, MCTPO.tileSize), Material.AIR);
+				blocks[x][y] = new Block(new Rectangle(x * MCTPO.blockSize, y * MCTPO.blockSize, MCTPO.blockSize, MCTPO.blockSize), Material.AIR);
 			}
 		}
 		//renderedBlocks = blocks;
@@ -46,12 +46,12 @@ public class World {
 		for(int y = 0; y<blocks[0].length;y++){
 			try{
 				if(blocks[rW][y].material==Material.AIR&&blocks[rW][y-1].material==Material.AIR&&!(blocks[rW][y+1].material==Material.AIR)){
-					character.y = y*MCTPO.tileSize - (MCTPO.tileSize+3);
-					character.x = rW*MCTPO.tileSize;
+					character.y = y*MCTPO.blockSize - (MCTPO.blockSize+3);
+					character.x = rW*MCTPO.blockSize;
 					spawnPoint.y = (int) character.y;
 					spawnPoint.x = (int) character.x;
-					MCTPO.sY = y*MCTPO.tileSize - (MCTPO.pixel.height / 2) + (character.height / 2);
-					MCTPO.sX = rW*MCTPO.tileSize - (MCTPO.pixel.width / 2) + (character.width / 2);
+					MCTPO.sY = y*MCTPO.blockSize - (MCTPO.pixel.height / 2) + (character.height / 2);
+					MCTPO.sX = rW*MCTPO.blockSize - (MCTPO.pixel.width / 2) + (character.width / 2);
 				}
 			}catch(Throwable t){}
 		}
@@ -76,8 +76,8 @@ public class World {
 	
 	public void render(Canvas c, int camX, int camY, int renW, int renH){
 		//Block[][] renBlocks = new Block[worldW][worldH];
-		for(int x=(camX/MCTPO.tileSize);x<(camX/MCTPO.tileSize) + renW;x++){
-			for(int y=(camY/MCTPO.tileSize);y<(camY/MCTPO.tileSize) + renH;y++){
+		for(int x=(camX/MCTPO.blockSize);x<(camX/MCTPO.blockSize) + renW;x++){
+			for(int y=(camY/MCTPO.blockSize);y<(camY/MCTPO.blockSize) + renH;y++){
 				if(x>=0 && y>=0 && x<worldW && y<worldH){
 					blocks[x][y - 1].render(c);
 					//renBlocks[x][y] = blocks[x][y];
@@ -91,8 +91,8 @@ public class World {
 	}
 
 	public void tick(int camX, int camY, int renW, int renH) {
-		for(int x=(camX/MCTPO.tileSize);x<(camX/MCTPO.tileSize) + renW;x++){
-			for(int y=(camY/MCTPO.tileSize);y<(camY/MCTPO.tileSize) + renH;y++){
+		for(int x=(camX/MCTPO.blockSize);x<(camX/MCTPO.blockSize) + renW;x++){
+			for(int y=(camY/MCTPO.blockSize);y<(camY/MCTPO.blockSize) + renH;y++){
 				if(x>=0 && y>=0 && x<worldW && y<worldH)
 					blocks[x][y].tick();
 			}

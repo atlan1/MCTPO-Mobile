@@ -13,9 +13,14 @@ import android.graphics.Rect;
 import android.graphics.RectF;
 
 import com.atlan1.mctpo.mobile.MCTPO;
+import com.atlan1.mctpo.mobile.HUD.HUD;
+import com.atlan1.mctpo.mobile.HUD.HealthBar;
+import com.atlan1.mctpo.mobile.HUD.InventoryBar;
 import com.atlan1.mctpo.mobile.Inventory.Inventory;
 import com.atlan1.mctpo.mobile.Inventory.Slot;
 import com.atlan1.mctpo.mobile.Texture.TextureLoader;
+import com.atlan1.mctpo.mobile.API.LivingThing;
+import com.atlan1.mctpo.mobile.API.Thing;
 import com.atlan1.mctpo.mobile.Graphics.FlipHelper;
 import com.atlan1.mctpo.mobile.Graphics.Line2d;
 import com.atlan1.mctpo.mobile.Graphics.Point;
@@ -41,7 +46,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 	private static int[]  character = {0, 0};
 	static{
 		animationTexture = TextureLoader.loadImage("images/animation.png");
-		animationTextureFlipped = FlipHelper.flipAnimation(animationTexture, MCTPO.tileSize, MCTPO.tileSize * 2);
+		animationTextureFlipped = FlipHelper.flipAnimation(animationTexture, MCTPO.blockSize, MCTPO.blockSize * 2);
 		//Red filter
 		redFilter = new Paint(Color.RED);
 		ColorFilter filter = new LightingColorFilter(Color.RED, 1);
@@ -68,11 +73,12 @@ public class Character extends DoubleRectangle implements LivingThing{
 	public double dir = 1;
 	public int animation, animationFrame, animationTime = 15;
 	public int sprintAnimationTime = 8;
-	public double buildRange = 60; //in pixels
+	public double buildRange = 4; //in blocks
 	public boolean isFalling = false;
 	public double startFalling = 0;
-	public Inventory inventory = new Inventory(this);
-	public HealthBar healthBar;
+	public HUD hud = new HUD(new HealthBar(this), new InventoryBar());
+	public Inventory inv = new Inventory(this, hud.getWidget(InventoryBar.class));
+
 	public int maxHealth = 100;
 	public int health = 100;
 	public boolean damaged = false;
@@ -92,7 +98,6 @@ public class Character extends DoubleRectangle implements LivingThing{
 		Canvas damageCanvas = new Canvas(damageAnimationTexture);
 		damageCanvas.drawBitmap(animationTexture, 0, 0, p);*/
 		
-		healthBar = new HealthBar(this);
 		
 		setBounds(width, height, (MCTPO.pixel.width / 2) - (width / 2), (MCTPO.pixel.height / 2) - (height / 2));
 		calcBounds();
@@ -101,8 +106,8 @@ public class Character extends DoubleRectangle implements LivingThing{
 	//TODO: Nur gerenderte Blocks durchlaufen!!!
 	
 	public boolean isCollidingWithAnyBlock(Line2d line) {
-		for(int x=(int)(this.x/MCTPO.tileSize);x<(int)(this.x/MCTPO.tileSize+3);x++)
-			for(int y=(int)(this.y/MCTPO.tileSize);y<(int)(this.y/MCTPO.tileSize+3);y++)
+		for(int x=(int)(this.x/MCTPO.blockSize);x<(int)(this.x/MCTPO.blockSize+3);x++)
+			for(int y=(int)(this.y/MCTPO.blockSize);y<(int)(this.y/MCTPO.blockSize+3);y++)
 				if(x >= 0 && y >= 0 && x < World.worldW && y < World.worldH){
 					boolean collide = World.blocks[x][y].contains(line.getP1())|| World.blocks[x][y].contains(line.getP2());
 					if(collide)
@@ -130,13 +135,13 @@ public class Character extends DoubleRectangle implements LivingThing{
 		Log.d("Block below y2", String.valueOf((int)(y + height) - 1 - (int) MCTPO.sY));
 		c.drawBitmap(Material.terrain.getSubImageById(1), new Rect(0, 0, MCTPO.tileSize, MCTPO.tileSize), new Rect((int)x - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, (int)(x + width) - (int) MCTPO.sX, (int)(y + height) - (int) MCTPO.sY), null);*/
 		if(dir>=0) 
-			c.drawBitmap(animationTexture, new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+((animation + 1) * MCTPO.tileSize), ((character[1] + 2) * MCTPO.tileSize)), new Rect((int)((x -  MCTPO.sX) * MCTPO.pixelSize), (int) ((y - MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize), (int) (((x + width) - MCTPO.sX) * MCTPO.pixelSize), (int) ((int)((y + height) - (int) MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize)), damaged?redFilter:null);
+			c.drawBitmap(animationTexture, new Rect((character[0] * MCTPO.blockSize)+(MCTPO.blockSize * animation), (character[1] * MCTPO.blockSize), (character[0] * MCTPO.blockSize)+((animation + 1) * MCTPO.blockSize), ((character[1] + 2) * MCTPO.blockSize)), new Rect((int)((x -  MCTPO.sX) * MCTPO.pixelSize), (int) ((y - MCTPO.sY + MCTPO.blockSize) * MCTPO.pixelSize), (int) (((x + width) - MCTPO.sX) * MCTPO.pixelSize), (int) ((int)((y + height) - (int) MCTPO.sY + MCTPO.blockSize) * MCTPO.pixelSize)), damaged?redFilter:null);
 			//c.drawBitmap(animationTexture, (int)(x + width) - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, damaged?redFilter:null);
 			/*Rect src = new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+(animation * MCTPO.tileSize)+ (int) width, (character[1] * MCTPO.tileSize) + (int) height);
 			Rect dst = new Rect((int)x - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, (int)(x + width) - (int) MCTPO.sX, (int)(y + height) - (int) MCTPO.sY);
 			c.drawBitmap(animationTexture, src, dst, damaged?redFilter:null);*/
 		else
-			c.drawBitmap(animationTextureFlipped, new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+((animation + 1) * MCTPO.tileSize), ((character[1] + 2) * MCTPO.tileSize)), new Rect((int)((x -  MCTPO.sX) * MCTPO.pixelSize), (int) ((y - MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize), (int) (((x + width) - MCTPO.sX) * MCTPO.pixelSize), (int) ((int)((y + height) - (int) MCTPO.sY + MCTPO.tileSize) * MCTPO.pixelSize)), damaged?redFilter:null);
+			c.drawBitmap(animationTextureFlipped, new Rect((character[0] * MCTPO.blockSize)+(MCTPO.blockSize * animation), (character[1] * MCTPO.blockSize), (character[0] * MCTPO.blockSize)+((animation + 1) * MCTPO.blockSize), ((character[1] + 2) * MCTPO.blockSize)), new Rect((int)((x -  MCTPO.sX) * MCTPO.pixelSize), (int) ((y - MCTPO.sY + MCTPO.blockSize) * MCTPO.pixelSize), (int) (((x + width) - MCTPO.sX) * MCTPO.pixelSize), (int) ((int)((y + height) - (int) MCTPO.sY + MCTPO.blockSize) * MCTPO.pixelSize)), damaged?redFilter:null);
 			//c.drawBitmap(animationTextureFlipped, (int)(x + width) - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, damaged?redFilter:null);
 			/*Rect src = new Rect((character[0] * MCTPO.tileSize)+(MCTPO.tileSize * animation), (character[1] * MCTPO.tileSize), (character[0] * MCTPO.tileSize)+(animation * MCTPO.tileSize)+ (int) width, (character[1] * MCTPO.tileSize) + (int) height);
 			Rect dst = new Rect((int)(x + width) - (int) MCTPO.sX, (int)y - (int) MCTPO.sY, (int)x - (int) MCTPO.sX, (int)(y + height) - (int) MCTPO.sY);
@@ -166,7 +171,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 		}
 		
 		if(!noGroundCollision && isFalling){
-			int deltaFallBlocks = (int) ((this.y-startFalling)/MCTPO.tileSize);
+			int deltaFallBlocks = (int) ((this.y-startFalling)/MCTPO.blockSize);
 			if(deltaFallBlocks>3)
 				health-=deltaFallBlocks;
 			startFalling=0;
@@ -178,14 +183,21 @@ public class Character extends DoubleRectangle implements LivingThing{
 				if(jumpHeight<=jumpCount){
 					isJumping = false;
 					jumpCount = 0;
-					if (setBlockBelow && !inventory.slots[inventory.selected].material.nonSolid) {
-						if(inventory.slots[inventory.selected].stackSize>0)
-							inventory.slots[inventory.selected].stackSize--;
+					if (setBlockBelow && !inv.slots[inv.selected].itemstack.material.nonSolid/*!hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.material.nonSolid*/) {
+						/*if(hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.stacksize>0)
+							hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.stacksize--;
 						else{
-							inventory.slots[inventory.selected].stackSize = 0;
-							inventory.slots[inventory.selected].material = Material.AIR;
+							hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.stacksize = 0;
+							hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.material = Material.AIR;
+						}*/
+						if(inv.slots[inv.selected].itemstack.stacksize>0)
+							inv.slots[inv.selected].itemstack.stacksize--;
+						else{
+							inv.slots[inv.selected].itemstack.stacksize = 0;
+							inv.slots[inv.selected].itemstack.material = Material.AIR;
 						}
-						World.blocks[(int) Math.round(x / MCTPO.tileSize)][(int) Math.round(y / 20 + 2)].material = inventory.slots[inventory.selected].material;
+						World.blocks[(int) Math.round(x / MCTPO.blockSize)][(int) Math.round(y / 20 + 2)].material = inv.slots[inv.selected].itemstack.material;
+								//hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.material;
 						setBlockBelow = false;
 					} else if (setBlockBelow) {
 						setBlockBelow = false;
@@ -268,13 +280,15 @@ public class Character extends DoubleRectangle implements LivingThing{
 		if(currentBlock!=null)
 			build();
 		if(health<=0){
-			inventory.clear();
+			inv.clear();
 			this.respawn();
 			health = maxHealth;
 		}
-		if(this.y/MCTPO.tileSize>World.worldH){
+		if(this.y/MCTPO.blockSize>World.worldH){
 			this.teleport((int) this.x, 0);
 		}
+		inv.tick();
+		hud.tick();
 	}
 	
 	private void calcMovement() {
@@ -370,14 +384,14 @@ public class Character extends DoubleRectangle implements LivingThing{
 	}
 	
 	public Block getBlockIncluding(double x, double y) {
-		return World.blocks[(int) ((x + MCTPO.sX) / MCTPO.tileSize)][(int) ((y + MCTPO.sY) / MCTPO.tileSize) - 1]; // -1 only in mobile version
+		return World.blocks[(int) ((x + MCTPO.sX) / MCTPO.blockSize)][(int) ((y + MCTPO.sY) / MCTPO.blockSize) - 1]; // -1 only in mobile version
 		//return World.blocks[(int) ((x + MCTPO.sX - (MCTPO.size.width - MCTPO.pixel.width) / 2) / (MCTPO.tileSize))][(int) ((y + MCTPO.sY - (MCTPO.size.height - MCTPO.pixel.height) / 2) / (MCTPO.tileSize) - 1)];
 	}
 	
 	public boolean isBlockInBuildRange(Block block) {
 		//Log.d("range", String.valueOf(Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x / MCTPO.tileSize + MCTPO.sX + (MCTPO.size.width - MCTPO.pixel.width) / 2 - (int)(this.x+width/2))), 2) + Math.pow(((MCTPO.fingerBuildP.y / MCTPO.tileSize + MCTPO.sY + (MCTPO.size.height - MCTPO.pixel.height) / 2) - (int)(this.y+height/2)) , 2)))));
 		//Log.d("rangeValue", String.valueOf(buildRange * MCTPO.pixelSize));
-		return Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x / MCTPO.pixelSize + (int)MCTPO.sX) - (int)(this.x+width/2)), 2) + Math.pow(((MCTPO.fingerBuildP.y / MCTPO.pixelSize + (int)MCTPO.sY) - (int)(this.y+height/2)) , 2))) <= buildRange;
+		return Math.sqrt(Math.pow(block.getCenterX() - (int)(this.x+width/2), 2) + Math.pow(block.getCenterY() - (int)(this.y+height/2) , 2)) <= buildRange*MCTPO.blockSize;
 		//return Math.sqrt((Math.pow(((MCTPO.fingerBuildP.x + MCTPO.sX - (MCTPO.size.width - MCTPO.pixel.width) / 2 - (int)(this.x+width/2))), 2) + Math.pow(((MCTPO.fingerBuildP.y + MCTPO.sY - (MCTPO.size.height - MCTPO.pixel.height) / 2) - (int)(this.y+height/2)) , 2))) <= buildRange * MCTPO.pixelSize;
 	}
 	
@@ -389,14 +403,14 @@ public class Character extends DoubleRectangle implements LivingThing{
 				if (!building) {
 					building = true;
 				}
-				if(inventory.slots[inventory.selected].material != Material.AIR){
-					if(inventory.slots[inventory.selected].stackSize>0)
-						inventory.slots[inventory.selected].stackSize--;
+				if(inv.slots[inv.selected].itemstack.material != Material.AIR){
+					if(inv.slots[inv.selected].itemstack.stacksize>0)
+						inv.slots[inv.selected].itemstack.stacksize--;
 					else{
-						inventory.slots[inventory.selected].stackSize = 0;
-						inventory.slots[inventory.selected].material = Material.AIR;
+						inv.slots[inv.selected].itemstack.stacksize = 0;
+						inv.slots[inv.selected].itemstack.material = Material.AIR;
 					}
-					currentBlock.material = inventory.slots[inventory.selected].material;
+					currentBlock.material = inv.slots[inv.selected].itemstack.material;
 					//buildOn = false;
 					return;
 				}
@@ -405,25 +419,25 @@ public class Character extends DoubleRectangle implements LivingThing{
 					buildOn = false;
 				}
 				if(destroyTime>=m.hardness&&!(m.hardness<0)){
-					if(inventory.containsMaterial(m)){
+					if(inv.containsMaterial(m)){
 						boolean check = false;
-						Slot[] slots = inventory.getSlotsContaining(m);
+						Slot[] slots = inv.getSlotsContaining(m);
 						for(Slot s : slots){
-							if(s.stackSize<inventory.maxStackSize){
-								s.stackSize++;
+						if(s.itemstack.stacksize<Inventory.maxStackSize){
+								s.itemstack.stacksize++;
 								check = true;
 								break;
 							}
 						}
-						if(!check && inventory.containsMaterial(Material.AIR)){
-							Slot s2 = inventory.getSlot(Material.AIR);
-							s2.material = m;
-							s2.stackSize++;
+						if(!check && inv.containsMaterial(Material.AIR)){
+							Slot s2 = inv.getSlot(Material.AIR);
+							s2.itemstack.material = m;
+							s2.itemstack.stacksize++;
 						}
-					}else if(inventory.containsMaterial(Material.AIR)){
-						Slot s3 = inventory.getSlot(Material.AIR);
-						s3.material = m;
-						s3.stackSize++;
+					}else if(inv.containsMaterial(Material.AIR)){
+						Slot s3 = inv.getSlot(Material.AIR);
+						s3.itemstack.material = m;
+						s3.itemstack.stacksize++;
 					}
 					currentBlock.material = Material.AIR;
 					destroyTime = 0;

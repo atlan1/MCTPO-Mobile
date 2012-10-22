@@ -4,9 +4,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.atlan1.mctpo.mobile.Block;
-import com.atlan1.mctpo.mobile.Thing;
+import com.atlan1.mctpo.mobile.API.Thing;
+import com.atlan1.mctpo.mobile.Physics.AbstractPhysics;
 
-public class AbstractBlockPhysics {
+public abstract class AbstractBlockPhysics implements AbstractPhysics<Boolean>{
 	
 	private Map<Block, Integer> blockID = new HashMap<Block,Integer>();
 
@@ -32,5 +33,11 @@ public class AbstractBlockPhysics {
 		}
 		return 0;
 	}
+	
+	@Override
+	public Boolean doPhysics(Object... objs) {
+		return performPhysics((Block)objs[0]);
+	}
+
 	
 }

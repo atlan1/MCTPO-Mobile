@@ -67,4 +67,12 @@ public class Rectangle {
 		this.y = r.y;
 	}
 	
+	public double getCenterX() {
+		return x + width / 2;
+	}
+	
+	public double getCenterY() {
+		return y + height / 2;
+	}
+	
 }

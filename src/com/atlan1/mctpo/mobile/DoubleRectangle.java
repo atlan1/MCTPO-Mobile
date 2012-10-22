@@ -59,4 +59,12 @@ public class DoubleRectangle {
 		return new RectF((float)x, (float)y, (float)(x + width), (float)(y + height));
 	}
 	
+	public double getCenterX() {
+		return x + width / 2;
+	}
+	
+	public double getCenterY() {
+		return y + height / 2;
+	}
+	
 }
