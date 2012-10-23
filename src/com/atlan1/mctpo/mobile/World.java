@@ -6,6 +6,8 @@ import java.util.Random;
 
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.util.Log;
+
 import com.atlan1.mctpo.mobile.WGen.MountainGenerator;
 import com.atlan1.mctpo.mobile.WGen.OverlayGenerator;
 import com.atlan1.mctpo.mobile.WGen.RectangleGenerator;
@@ -46,12 +48,16 @@ public class World {
 		for(int y = 0; y<blocks[0].length;y++){
 			try{
 				if(blocks[rW][y].material==Material.AIR&&blocks[rW][y-1].material==Material.AIR&&!(blocks[rW][y+1].material==Material.AIR)){
-					character.y = y*MCTPO.blockSize - (MCTPO.blockSize+3);
-					character.x = rW*MCTPO.blockSize;
-					spawnPoint.y = (int) character.y;
-					spawnPoint.x = (int) character.x;
-					MCTPO.sY = y*MCTPO.blockSize - (MCTPO.pixel.height / 2) + (character.height / 2);
-					MCTPO.sX = rW*MCTPO.blockSize - (MCTPO.pixel.width / 2) + (character.width / 2);
+					spawnPoint.y = y*MCTPO.blockSize - (MCTPO.blockSize+3);
+					spawnPoint.x = rW*MCTPO.blockSize;
+					//MCTPO.moveCamera(character.x, character.y);
+					MCTPO.character.teleport(spawnPoint.x, spawnPoint.y);
+					Log.e("characterx", String.valueOf(character.x));
+					Log.e("charactery", String.valueOf(character.y));
+					Log.e("spawnX", String.valueOf(spawnPoint.x));
+					Log.e("spawnY", String.valueOf(spawnPoint.y));
+					//MCTPO.sY = y*MCTPO.blockSize - (MCTPO.pixel.height / 2) + (character.height / 2);
+					//MCTPO.sX = rW*MCTPO.blockSize - (MCTPO.pixel.width / 2) + (character.width / 2);
 				}
 			}catch(Throwable t){}
 		}
@@ -79,7 +85,10 @@ public class World {
 		for(int x=(camX/MCTPO.blockSize);x<(camX/MCTPO.blockSize) + renW;x++){
 			for(int y=(camY/MCTPO.blockSize);y<(camY/MCTPO.blockSize) + renH;y++){
 				if(x>=0 && y>=0 && x<worldW && y<worldH){
-					blocks[x][y - 1].render(c);
+					try {
+						blocks[x][y - 1].render(c);
+					} catch (Exception e) {}
+					
 					//renBlocks[x][y] = blocks[x][y];
 					/*if(blocks[x][y].contains(new Point(MCTPO.mouse.x + (int)MCTPO.sX, MCTPO.mouse.y + (int)MCTPO.sY))&&character.isBlockInBuildRange(blocks[x][y])){
 						c.drawRect(blocks[x][y].x-camX, blocks[x][y].y-camY, blocks[x][y].x-camX + blocks[x][y].width-1, blocks[x][y].y-camY + blocks[x][y].height-1, blackBorders);

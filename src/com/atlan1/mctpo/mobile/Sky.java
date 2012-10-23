@@ -4,7 +4,8 @@ import android.graphics.Canvas;
 
 public class Sky {
 
-	public int frame=0, time=12000;
+	public int dayLength=12000;
+	public long startTime = System.currentTimeMillis();
 	private int dayR=60, dayG=110, dayB=255;
 	private int nightR=50, nightG=40, nightB=145;
 	private int nowR, nowG, nowB;
@@ -15,15 +16,15 @@ public class Sky {
 	}
 	
 	public void tick(){
-		if(frame>time){
+		if(MCTPO.thisTime - startTime > dayLength){
 			if(isDay){
 				isDay=false;
 			}else{
 				isDay=true;
 			}
-			frame=0;
+			startTime=0;
 		}else{
-			frame++;
+			startTime++;
 		}
 		if(isDay){
 			if(!(nowR==nightR&&nowG==nightG&&nowB==nightB)){

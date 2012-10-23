@@ -9,7 +9,7 @@ public class LeavesPhysics implements BlockPhysics{
 	private AbstractBlockPhysics abs;
 	
 	public LeavesPhysics() {
-		abs = new DecayPhysics(400, Material.WOOD, 40);
+		abs = new DecayPhysics(3000, Material.WOOD, 40);
 	}
 
 	@Override

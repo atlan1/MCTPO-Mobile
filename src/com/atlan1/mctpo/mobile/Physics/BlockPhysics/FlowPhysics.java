@@ -1,6 +1,7 @@
 package com.atlan1.mctpo.mobile.Physics.BlockPhysics;
 
 import com.atlan1.mctpo.mobile.Block;
+import com.atlan1.mctpo.mobile.MCTPO;
 import com.atlan1.mctpo.mobile.Material;
 import com.atlan1.mctpo.mobile.World;
 
@@ -18,7 +19,7 @@ public class FlowPhysics extends AbstractBlockPhysics {
 	public Boolean flow(Block b){
 		addId(b);
 		if(b!=null){
-			if(b.framesSinceUpdate.get(getId(b))>=tick){
+			if(MCTPO.thisTime - b.timeOfUpdate.get(getId(b))>=tick){
 				Material from = b.material;
 				//infinite fluid
 				if(infinite){

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Random;
 
 import com.atlan1.mctpo.mobile.Block;
+import com.atlan1.mctpo.mobile.MCTPO;
 import com.atlan1.mctpo.mobile.Material;
 import com.atlan1.mctpo.mobile.World;
 
@@ -24,7 +25,7 @@ public class DecayPhysics extends AbstractBlockPhysics {
 	public boolean decay(Block b){
 		addId(b);
 		if(b!=null){
-			if(b.framesSinceUpdate.get(getId(b))>=tick){
+			if(MCTPO.thisTime - b.timeOfUpdate.get(getId(b))>=tick){
 				Material m = b.material;
 				boolean willDecay = false;
 				if((new Random()).nextInt(100)<prob){

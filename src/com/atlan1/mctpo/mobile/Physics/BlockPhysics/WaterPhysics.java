@@ -8,7 +8,7 @@ public class WaterPhysics implements BlockPhysics{
 	private AbstractBlockPhysics abs;
 	
 	public WaterPhysics() {
-		abs = new FlowPhysics(15, true);
+		abs = new FlowPhysics(500, true);
 	}
 
 	@Override

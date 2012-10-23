@@ -8,7 +8,7 @@ public class SandPhysics implements BlockPhysics {
 	private AbstractBlockPhysics abs;
 
 	public SandPhysics() {
-		abs = new FallPhysics(10);
+		abs = new FallPhysics(300);
 	}
 
 	@Override

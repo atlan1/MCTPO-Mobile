@@ -28,15 +28,10 @@ public class GameThread extends Thread {
 
 	@Override 
 	public void run() {
-		long thisTime;
-		long deltaTime;
-		long lastTime = System.currentTimeMillis() - 1;
 		
 		mctpo = new MCTPO(panel.getContext());
 		
 		while (running) {
-			thisTime = System.currentTimeMillis();
-			deltaTime = thisTime - lastTime;
 			
 			/*synchronized (panel) {
 				panel.notify();
@@ -67,7 +62,7 @@ public class GameThread extends Thread {
 				}
 			}
 			
-			lastTime = thisTime;
+			
 		}
 	} 
 	

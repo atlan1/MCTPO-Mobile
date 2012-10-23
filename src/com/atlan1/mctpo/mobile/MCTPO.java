@@ -26,7 +26,7 @@ public class MCTPO {
 		blackLine.setARGB(255, 0, 0, 0);
 	}
 	
-	public static int blockSize = 20;
+	public static final int blockSize = 20;
 	
 	public static Dimension size;
 	public static Dimension pixel;
@@ -53,6 +53,11 @@ public class MCTPO {
 	public static Character character;
 
 	public static Context context;
+	
+	//for frame independent movement
+	public static long thisTime;
+	static long deltaTime;
+	static long lastTime;
 
 	
 	/*public static Cursor destroyCursor = Toolkit.getDefaultToolkit().createCustomCursor(TextureLoader.loadImage("res/DestroyCursor.png"), mouse, "DestroyCursor");
@@ -77,6 +82,7 @@ public class MCTPO {
 		character = new Character(MCTPO.blockSize, MCTPO.blockSize * 2);
 		world = new World(character);
 		sky = new Sky();
+		lastTime = System.currentTimeMillis() - 1;
 		
 		/*MouseListener ml = new MouseListener(character);
 		this.addMouseListener(ml);
@@ -108,6 +114,9 @@ public class MCTPO {
 	}*/
 	
 	public void tick() {
+		thisTime = System.currentTimeMillis();
+		deltaTime = thisTime - lastTime;
+		
 		character.tick();
 		sky.tick();
 		world.tick((int)sX, (int)sY, (pixel.width / blockSize) + 8, (pixel.height / blockSize) + 8);
@@ -123,6 +132,8 @@ public class MCTPO {
 		character.inv.render(canvas);
 		
 		canvas.drawBitmap(character.buildMode == BuildMode.BUILD_DESTROY?Character.buildDestroyButton:character.buildMode == BuildMode.BUILD_ONLY?Character.buildOnlyButton:Character.destroyOnlyButton, null, new Rect(MCTPO.size.width - Character.modeButtonSize, 0, MCTPO.size.width, Character.modeButtonSize), null);
+		
+		lastTime = thisTime;
 		
 		/*if (MCTPO.fingerBuildDown) {
 			canvas.drawLine(MCTPO.size.width / 2, MCTPO.size.height / 2 - tileSize, (float) MCTPO.fingerBuildP.x, (float) MCTPO.fingerBuildP.y, blackLine);

@@ -8,7 +8,7 @@ public class FirePhysics implements BlockPhysics {
 	private AbstractBlockPhysics abs;
 	
 	public FirePhysics() {
-		abs = new SpreadPhysics(20);
+		abs = new SpreadPhysics(350);
 	}
 
 	@Override

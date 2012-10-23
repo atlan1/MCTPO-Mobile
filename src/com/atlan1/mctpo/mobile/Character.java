@@ -11,6 +11,7 @@ import android.graphics.LightingColorFilter;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.RectF;
+import android.util.Log;
 
 import com.atlan1.mctpo.mobile.MCTPO;
 import com.atlan1.mctpo.mobile.HUD.HUD;
@@ -60,18 +61,21 @@ public class Character extends DoubleRectangle implements LivingThing{
 	
 	private List<Thing> collisions = new ArrayList<Thing>();
 	
-	public double fallingSpeed = 4d;
-	public double jumpingSpeed = 2d;
-	public double movementSpeed = 1.5d;
-	public double sprintSpeed = 0.5d;
+	public double fallingSpeed = 5d;//blocks per second
+	public double jumpingSpeed = 3d;//blocks per second
+	public double movementSpeed = 2d; //blocks per second
+	//public double sprintSpeed = 0.5d;//blocks per second
 	public boolean isMoving = false;
 	public boolean wouldJump = false;
 	public boolean isJumping = false;
 	public boolean setBlockBelow = false;
 	public boolean isSprinting = false;
-	public int jumpHeight = 12, jumpCount = 0; 
+	public float jumpHeight = 1.25f; //in Blocks
+	public float actualJumpHeight = 0;
 	public double dir = 1;
-	public int animation, animationFrame, animationTime = 15;
+	public int animation = 0;
+	public long startAnimation;
+	public int animationTime = 500; //ms
 	public int sprintAnimationTime = 8;
 	public double buildRange = 4; //in blocks
 	public boolean isFalling = false;
@@ -82,8 +86,8 @@ public class Character extends DoubleRectangle implements LivingThing{
 	public int maxHealth = 100;
 	public int health = 100;
 	public boolean damaged = false;
-	public int damageTime=10, damageFrame=0;
-	public int destroyTime=0;
+	public int damageTime=400; // ms
+	public long destroyTime=0;
 	public boolean buildOn = true;
 	private boolean building = false;
 	public BuildMode buildMode = BuildMode.BUILD_DESTROY;
@@ -91,6 +95,8 @@ public class Character extends DoubleRectangle implements LivingThing{
 	public Block lastBlock;
 	public final int bUP = 0, bDOWN = 1, bRIGHT = 2, bLEFT = 3;
 	public com.atlan1.mctpo.mobile.Graphics.Line.Double[] bounds = new com.atlan1.mctpo.mobile.Graphics.Line.Double[4];
+	private long startDestroyTime = 0;
+	private long damageStartTime = 0;
 	
 	public Character(double width, double height) {
 		
@@ -150,6 +156,11 @@ public class Character extends DoubleRectangle implements LivingThing{
 	}
 	
 	public void tick(){
+		//this.respawn();
+		/*Log.d("characterx", String.valueOf(x));
+		Log.d("charactery", String.valueOf(y));
+		Log.d("spawnX", String.valueOf(MCTPO.world.spawnPoint.x));
+		Log.d("spawnY", String.valueOf(MCTPO.world.spawnPoint.y));*/
 		calcBounds();
 		clearCollisions();
 		//isSprinting = MCTPO.mctpo.controlDown;
@@ -159,8 +170,10 @@ public class Character extends DoubleRectangle implements LivingThing{
 		int firstHealth = health;
 		boolean noGroundCollision = !isCollidingWithAnyBlock(bounds[bDOWN]);
 		if(!isJumping && noGroundCollision){
-			y+=fallingSpeed;
-			MCTPO.sY+=fallingSpeed;
+			double fall = fallingSpeed * MCTPO.blockSize * MCTPO.deltaTime / 1000;
+			Log.d("fall", String.valueOf(fall));
+			y += fall;
+			MCTPO.sY += fall;
 			if(!isFalling && noGroundCollision){
 				startFalling=this.y;
 				isFalling = true;
@@ -180,16 +193,11 @@ public class Character extends DoubleRectangle implements LivingThing{
 		if(isJumping){
 			boolean canJump = !isCollidingWithAnyBlock(bounds[bUP]);
 			if(canJump){
-				if(jumpHeight<=jumpCount){
+				if(jumpHeight<=actualJumpHeight){
 					isJumping = false;
-					jumpCount = 0;
+					actualJumpHeight = 0;
 					if (setBlockBelow && !inv.slots[inv.selected].itemstack.material.nonSolid/*!hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.material.nonSolid*/) {
-						/*if(hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.stacksize>0)
-							hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.stacksize--;
-						else{
-							hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.stacksize = 0;
-							hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.material = Material.AIR;
-						}*/
+						
 						if(inv.slots[inv.selected].itemstack.stacksize>0)
 							inv.slots[inv.selected].itemstack.stacksize--;
 						else{
@@ -197,19 +205,19 @@ public class Character extends DoubleRectangle implements LivingThing{
 							inv.slots[inv.selected].itemstack.material = Material.AIR;
 						}
 						World.blocks[(int) Math.round(x / MCTPO.blockSize)][(int) Math.round(y / 20 + 2)].material = inv.slots[inv.selected].itemstack.material;
-								//hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.material;
 						setBlockBelow = false;
 					} else if (setBlockBelow) {
 						setBlockBelow = false;
 					}
 				}else{
-					y-=jumpingSpeed;
-					MCTPO.sY-=jumpingSpeed;
-					jumpCount++;
+					double jump = jumpingSpeed * MCTPO.blockSize * MCTPO.deltaTime / 1000;
+					y -= jump;
+					MCTPO.sY -= jump;
+					actualJumpHeight += jump / MCTPO.blockSize;
 				}
 			}else{
 				isJumping = false;
-				jumpCount = 0;
+				actualJumpHeight = 0;
 				setBlockBelow = false;
 			}
 		}		
@@ -222,21 +230,22 @@ public class Character extends DoubleRectangle implements LivingThing{
 				canMove = !isCollidingWithAnyBlock(bounds[bLEFT]);
 			}
 			
-			if(animationFrame >= (isSprinting?sprintAnimationTime:animationTime)) {
+			if(MCTPO.thisTime - startAnimation >= (isSprinting?sprintAnimationTime:animationTime)) {
 				if(animation<3){
 					animation++;
-					animationFrame=0;
+					startAnimation = MCTPO.thisTime;
 				}else{
 					animation=0;
-					animationFrame=0;
+					startAnimation = MCTPO.thisTime;
 				}
 			}else{
-				animationFrame+=1;
+				
 			}
 			
 			if(canMove){
-				x+=isSprinting?dir<0?dir-sprintSpeed:dir+sprintSpeed:dir;
-				MCTPO.sX+=isSprinting?dir<0?dir-sprintSpeed:dir+sprintSpeed:dir;
+				double move = dir * movementSpeed * MCTPO.blockSize * MCTPO.deltaTime / 1000;
+				x += move;
+				MCTPO.sX += move;
 			} else if (!isJumping && !noGroundCollision && MCTPO.fingerDown) {
 				isJumping = true;
 			}
@@ -247,11 +256,11 @@ public class Character extends DoubleRectangle implements LivingThing{
 			damaged = true;
 		}
 		if(damaged){
-			if(damageTime<=damageFrame){
-				damageFrame=0;
+			if(damageTime<=MCTPO.thisTime - damageStartTime ){
+				damageStartTime = 0;
 				damaged= false;
 			}else{
-				damageFrame++;
+				
 			}
 		}
 		/*if(currentBlock!=null&&currentBlock.material.nonSolid&&isBlockInBuildRange(currentBlock))
@@ -262,9 +271,10 @@ public class Character extends DoubleRectangle implements LivingThing{
 			MCTPO.mctpo.setCursor(MCTPO.crossHair);
 		}*/
 		if(currentBlock!=null&&lastBlock!=null&&MCTPO.fingerBuildDown&&lastBlock.equals(currentBlock)&&isBlockInBuildRange(currentBlock)){
-			destroyTime++;
+			destroyTime = MCTPO.thisTime - startDestroyTime ;
 		}else{
 			destroyTime=0;
+			startDestroyTime = 0;
 		}
 		if (!MCTPO.fingerBuildDown) {
 			if (!buildOn) {

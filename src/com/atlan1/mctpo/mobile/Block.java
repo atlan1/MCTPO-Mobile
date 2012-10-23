@@ -14,7 +14,7 @@ import android.graphics.RectF;
 public class Block extends Rectangle implements Thing{
 	public Material material = Material.AIR;
 
-	public List<Integer> framesSinceUpdate = new ArrayList<Integer>();
+	public List<Long> timeOfUpdate = new ArrayList<Long>();
 	public List<Thing> collisions = new ArrayList<Thing>();
 	
 	public Block(Rect size, int id) {
@@ -78,7 +78,7 @@ public class Block extends Rectangle implements Thing{
 	}
 	
 	public void update(int index) {
-		framesSinceUpdate.set(index, 0);
+		timeOfUpdate.set(index, MCTPO.thisTime);
 	}
 
 	public void tick(){
@@ -86,9 +86,6 @@ public class Block extends Rectangle implements Thing{
 			material.doPhysics(this);
 			for(Thing t : new ArrayList<Thing>(collisions)){
 				material.collide(this, t);
-			}
-			for (int i = 0; i<framesSinceUpdate.size(); i++) {
-				framesSinceUpdate.set(i, framesSinceUpdate.get(i) + 1);
 			}
 		}
 			
@@ -104,9 +101,10 @@ public class Block extends Rectangle implements Thing{
 		return this;
 	}
 	
-	public synchronized int requestFramesId() {
-		framesSinceUpdate.add(0);
-		return framesSinceUpdate.get(framesSinceUpdate.size()-1);
+	public synchronized int requestTimeId() {
+		timeOfUpdate.add(MCTPO.thisTime);
+		//return timeOfUpdate.get(timeOfUpdate.size()-1);
+		return timeOfUpdate.size() - 1;
 	}
 	
 	public int getGridX(){

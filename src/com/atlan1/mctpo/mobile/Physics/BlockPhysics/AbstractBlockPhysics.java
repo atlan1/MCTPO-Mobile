@@ -23,7 +23,7 @@ public abstract class AbstractBlockPhysics implements AbstractPhysics<Boolean>{
 		if(blockID.keySet().contains(b)){
 			return;
 		}else{
-			blockID.put(b, b.requestFramesId());
+			blockID.put(b, b.requestTimeId());
 		}
 	}
 	
