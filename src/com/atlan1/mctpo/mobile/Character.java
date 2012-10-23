@@ -62,7 +62,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 	private List<Thing> collisions = new ArrayList<Thing>();
 	
 	public double fallingSpeed = 5d;//blocks per second
-	public double jumpingSpeed = 3d;//blocks per second
+	public double jumpingSpeed = 5d;//blocks per second
 	public double movementSpeed = 2d; //blocks per second
 	//public double sprintSpeed = 0.5d;//blocks per second
 	public boolean isMoving = false;
@@ -70,7 +70,7 @@ public class Character extends DoubleRectangle implements LivingThing{
 	public boolean isJumping = false;
 	public boolean setBlockBelow = false;
 	public boolean isSprinting = false;
-	public float jumpHeight = 1.25f; //in Blocks
+	public float jumpHeight = 1f; //in Blocks
 	public float actualJumpHeight = 0;
 	public double dir = 1;
 	public int animation = 0;
@@ -156,28 +156,38 @@ public class Character extends DoubleRectangle implements LivingThing{
 	}
 	
 	public void tick(){
-		//this.respawn();
-		/*Log.d("characterx", String.valueOf(x));
-		Log.d("charactery", String.valueOf(y));
-		Log.d("spawnX", String.valueOf(MCTPO.world.spawnPoint.x));
-		Log.d("spawnY", String.valueOf(MCTPO.world.spawnPoint.y));*/
 		calcBounds();
 		clearCollisions();
-		//isSprinting = MCTPO.mctpo.controlDown;
 		
 		calcMovement();
+		
+		Log.d("jumping", String.valueOf(isJumping));
+		Log.d("falling", String.valueOf(isFalling));
 		
 		int firstHealth = health;
 		boolean noGroundCollision = !isCollidingWithAnyBlock(bounds[bDOWN]);
 		if(!isJumping && noGroundCollision){
-			double fall = fallingSpeed * MCTPO.blockSize * MCTPO.deltaTime / 1000;
-			Log.d("fall", String.valueOf(fall));
-			y += fall;
-			MCTPO.sY += fall;
 			if(!isFalling && noGroundCollision){
 				startFalling=this.y;
 				isFalling = true;
 			}
+			
+			double fall = fallingSpeed * MCTPO.blockSize * MCTPO.deltaTime / 1000;
+			Log.d("fall", String.valueOf(fall));
+			y += fall;
+			MCTPO.sY += fall;
+			
+			calcBounds();
+			
+			if (isCollidingWithAnyBlock(bounds[bDOWN])) {
+				MCTPO.sY -= y % MCTPO.blockSize;
+				y -= y % MCTPO.blockSize;
+				isFalling = false;
+				calcBounds();
+				clearCollisions();
+			}
+			
+			
 		}else{
 			if(wouldJump)
 				isJumping = true;
@@ -193,7 +203,8 @@ public class Character extends DoubleRectangle implements LivingThing{
 		if(isJumping){
 			boolean canJump = !isCollidingWithAnyBlock(bounds[bUP]);
 			if(canJump){
-				if(jumpHeight<=actualJumpHeight){
+				Log.d("actualJumpHeight", String.valueOf(actualJumpHeight));
+				if(jumpHeight<=actualJumpHeight + 0.05){ // + 0.05 to allow small difference, elsewise: often not falling.
 					isJumping = false;
 					actualJumpHeight = 0;
 					if (setBlockBelow && !inv.slots[inv.selected].itemstack.material.nonSolid/*!hud.getWidget(InventoryBar.class).slots[hud.getWidget(InventoryBar.class).selected].itemstack.material.nonSolid*/) {
@@ -211,9 +222,18 @@ public class Character extends DoubleRectangle implements LivingThing{
 					}
 				}else{
 					double jump = jumpingSpeed * MCTPO.blockSize * MCTPO.deltaTime / 1000;
+					/*if (jump > jumpHeight - actualJumpHeight) {
+						jump = (jumpHeight - actualJumpHeight) * MCTPO.blockSize;
+					}*/
 					y -= jump;
 					MCTPO.sY -= jump;
 					actualJumpHeight += jump / MCTPO.blockSize;
+					
+					if (isCollidingWithAnyBlock(bounds[bUP])) {
+						MCTPO.sY += y % MCTPO.blockSize;
+						y += y % MCTPO.blockSize;
+						calcBounds();
+					}
 				}
 			}else{
 				isJumping = false;
@@ -224,9 +244,9 @@ public class Character extends DoubleRectangle implements LivingThing{
 		if(isMoving){
 			boolean canMove = false;
 			
-			if(dir == movementSpeed){
+			if(dir == 1){
 				canMove = !isCollidingWithAnyBlock(bounds[bRIGHT]);
-			}else if (dir == -movementSpeed){
+			}else if (dir == -1){
 				canMove = !isCollidingWithAnyBlock(bounds[bLEFT]);
 			}
 			
@@ -246,6 +266,12 @@ public class Character extends DoubleRectangle implements LivingThing{
 				double move = dir * movementSpeed * MCTPO.blockSize * MCTPO.deltaTime / 1000;
 				x += move;
 				MCTPO.sX += move;
+				
+				if (isCollidingWithAnyBlock(bounds[dir > 0?bRIGHT:bLEFT])) {
+					MCTPO.sX -= dir * (x % MCTPO.blockSize);
+					x -= dir *(x % MCTPO.blockSize);
+					calcBounds();
+				}
 			} else if (!isJumping && !noGroundCollision && MCTPO.fingerDown) {
 				isJumping = true;
 			}
@@ -305,10 +331,10 @@ public class Character extends DoubleRectangle implements LivingThing{
 		if (MCTPO.fingerDown) {
 			if (MCTPO.fingerP.x <= (MCTPO.size.width) / 2 - 30) {
 				isMoving = true;
-				dir = -movementSpeed;
+				dir = -1;
 			} else if (MCTPO.fingerP.x >= (MCTPO.size.width) / 2 + 30) {
 				isMoving = true;
-				dir = movementSpeed;
+				dir = 1;
 			} else if (!isJumping && (MCTPO.fingerP.y <= (MCTPO.size.height) / 2 - 50) && isCollidingWithAnyBlock(bounds[bDOWN])) {
 				isJumping = true;
 			} else if (!isJumping && (MCTPO.fingerP.y >= (MCTPO.size.height) / 2 + 50) && isCollidingWithAnyBlock(bounds[bDOWN])) {
