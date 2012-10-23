@@ -267,11 +267,11 @@ public class Character extends DoubleRectangle implements LivingThing{
 				x += move;
 				MCTPO.sX += move;
 				
-				if (isCollidingWithAnyBlock(bounds[dir > 0?bRIGHT:bLEFT])) {
+				/*if (isCollidingWithAnyBlock(bounds[dir > 0?bRIGHT:bLEFT])) {
 					MCTPO.sX -= dir * (x % MCTPO.blockSize);
 					x -= dir *(x % MCTPO.blockSize);
 					calcBounds();
-				}
+				}*/
 			} else if (!isJumping && !noGroundCollision && MCTPO.fingerDown) {
 				isJumping = true;
 			}
